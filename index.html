@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Party Artwork Ledger</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cpath d=%22M8 1l6 7-6 7-6-7z%22 fill=%22%23A87A1E%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;600&display=swap">
+<style>
+*{box-sizing:border-box}
+
+/* Layout: a ledger. Header with language switch, party progress strip, filter bar, then one matrix — artworks down, party members across — grouped by region. */
+:root{
+  --bg:#EDF0F4; --panel:#FFFFFF; --ink:#14213A; --muted:#5C6880; --line:#D5DBE5;
+  --aether:#1D6F82; --aether-soft:#DCEDF1; --gold:#A87A1E; --gold-soft:#F6EBD2;
+  --both:#E7E1F8; --both-ink:#5A3FB0; --one:#EEF4F7; --ill:#6B4FC6; --wis:#1D7F6A;
+  --f-display:"Marcellus", "Palatino Linotype", Georgia, serif;
+  --f-body:"Figtree", "Noto Sans TC", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-data:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1522; --panel:#172034; --ink:#E6EAF2; --muted:#93A0B8; --line:#2A3550;
+  --aether:#5FC0D4; --aether-soft:#16323C; --gold:#E2B655; --gold-soft:#3A2F16;
+  --both:#2A2348; --both-ink:#C4B5FF; --one:#18283A; --ill:#B7A4FF; --wis:#6FD3B8; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0F1522; --panel:#172034; --ink:#E6EAF2; --muted:#93A0B8; --line:#2A3550;
+  --aether:#5FC0D4; --aether-soft:#16323C; --gold:#E2B655; --gold-soft:#3A2F16;
+  --both:#2A2348; --both-ink:#C4B5FF; --one:#18283A; --ill:#B7A4FF; --wis:#6FD3B8; color-scheme:dark }
+
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:28px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(28px,4vw,40px);line-height:1.1;margin:0;text-wrap:balance}
+:lang(zh) h1{font-family:"Noto Sans TC",var(--f-display);font-weight:600}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--aether);font-weight:600}
+.sub{color:var(--muted);margin:6px 0 0;max-width:68ch}
+header{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:flex-end;justify-content:space-between}
+.hright{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.sync{font-family:var(--f-data);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.sync.live .dot{background:#2E9D62}.sync.off .dot{background:#C2603A}
+
+.party{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media (max-width:720px){.party{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
+.pm{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.pm b{font-weight:600}
+.pm .n{font-family:var(--f-data);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold);transition:width .3s}
+
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.tools .l{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{font:inherit;font-size:13px;border:0;background:none;color:var(--muted);padding:7px 12px;cursor:pointer}
+.seg button + button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--aether-soft);color:var(--aether);font-weight:600}
+input[type=search]{font:inherit;font-size:14px;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);width:220px;max-width:100%}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px;border:1px solid var(--line)}
+.sw.both{background:var(--both)}.sw.one{background:var(--one)}
+
+.tablebox{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+thead th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--panel)}
+thead th.m{text-align:center;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)}
+tr.tier td{background:var(--bg);font-family:var(--f-display);font-size:16px;padding:10px 12px;color:var(--ink)}
+:lang(zh) tr.tier td{font-family:var(--f-body);font-weight:600}
+tr.tier small{font-family:var(--f-body);font-size:12px;color:var(--muted);margin-left:10px;font-weight:400}
+.art{position:sticky;left:0;background:var(--panel);min-width:240px;z-index:1}
+tr.both td{background:var(--both)} tr.one td{background:var(--one)}
+tr.both .t{color:var(--both-ink)}
+.art .t{font-weight:600}
+.art .b{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:2px}
+.dom{font-family:var(--f-data);font-size:11px;font-weight:500;border-radius:4px;padding:0 6px;border:1px solid currentColor}
+.dom.i{color:var(--ill)} .dom.w{color:var(--wis)}
+.grade{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border-radius:4px;padding:0 6px}
+.g-unique{background:var(--gold-soft);color:var(--gold)} .g-heroic{background:#F7E3D9;color:#B4532A}
+:root[data-theme="dark"] .g-heroic{background:#3B2219;color:#F0906A}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .g-heroic{background:#3B2219;color:#F0906A} }
+.where{font-size:13px;min-width:170px;color:var(--ink)}
+.when{font-family:var(--f-data);font-size:12.5px;min-width:170px;font-variant-numeric:tabular-nums}
+.when .next{color:var(--aether);font-weight:500}
+.when .srv{color:var(--muted)}
+td.c{text-align:center;padding:5px}
+.cell{font:inherit;width:42px;height:34px;border-radius:8px;border:1px dashed var(--line);background:var(--panel);color:var(--muted);cursor:pointer;font-size:16px;line-height:1}
+.cell:hover{border-color:var(--aether);color:var(--aether)}
+.cell[aria-pressed="true"]{background:var(--gold-soft);border:1px solid var(--gold);color:var(--gold)}
+.cell:disabled{cursor:default;opacity:.7}
+.cell:focus-visible,.seg button:focus-visible,input:focus-visible{outline:2px solid var(--aether);outline-offset:2px}
+.need{font-family:var(--f-data);font-size:12px;color:var(--muted);white-space:nowrap}
+.need.done{color:var(--gold)}
+tr.hide{display:none}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+footer{font-size:13px;color:var(--muted);max-width:80ch;display:flex;flex-direction:column;gap:6px}
+footer a{color:var(--aether)}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow" data-i="eyebrow"></div>
+      <h1 data-i="title"></h1>
+      <p class="sub" data-i="sub"></p>
+    </div>
+    <div class="hright">
+      <div class="seg" role="group" aria-label="Language / 語言">
+        <button id="lang-en" aria-pressed="true">English</button>
+        <button id="lang-zh" aria-pressed="false" lang="zh-Hant">中文</button>
+      </div>
+      <div class="sync" id="sync"><span class="dot"></span><span id="syncText"></span></div>
+    </div>
+  </header>
+
+  <section class="party" id="party" aria-label="Party progress"></section>
+
+  <div class="tools">
+    <div class="l">
+      <div class="seg" role="group" aria-label="Filter">
+        <button id="f-all" aria-pressed="true" data-i="fAll"></button>
+        <button id="f-need" aria-pressed="false" data-i="fNeed"></button>
+        <button id="f-iw" aria-pressed="false" data-i="fIW"></button>
+      </div>
+      <input type="search" id="q" aria-label="Search">
+    </div>
+    <span class="legend"><span><i class="sw both"></i><span data-i="lgBoth"></span></span><span><i class="sw one"></i><span data-i="lgOne"></span></span><span data-i="lgHave"></span></span>
+  </div>
+
+  <div class="tablebox">
+    <table>
+      <thead><tr id="headRow"><th class="art" data-i="hArt"></th><th data-i="hWhere"></th><th data-i="hSpawn"></th></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+    <div class="empty" id="empty" hidden data-i="empty"></div>
+  </div>
+
+  <footer>
+    <span data-i="foot1"></span>
+    <span data-i="foot2"></span>
+    <span>Sources: <a href="https://thegameswiki.com/aion-2/wiki/field-bosses" target="_blank" rel="noopener">Field boss list</a> · <a href="https://aion2hub.me/en/db/pantheon" target="_blank" rel="noopener">Pantheon database</a> · <a href="https://allthings.how/aion-2-world-boss-timers-every-field-and-abyss-boss-spawn-schedule/" target="_blank" rel="noopener">Abyss schedules</a> · <a href="https://metabot.gg/en/aion-2/monsters" target="_blank" rel="noopener">Monster locations</a></span>
+  </footer>
+</div>
+
+<script src="config.js"></script>
+<script>
+const MEMBERS = ["Powerful","Lovecd","nottom","mika","Sticky"];
+const SRV_OFFSET = 9; // global servers run on GMT+9
+
+const STR = {
+  en:{eyebrow:"Aion 2 · Field & world boss Pantheon artwork", title:"Party Artwork Ledger",
+      sub:"Tap a square when someone loots that boss's Artwork. Every Unique and Heroic field and world boss artwork, grouped by region. Purple rows give both Illusion and Wisdom. The party sees changes live.",
+      fAll:"All artworks", fNeed:"Someone still needs", fIW:"Illusion + Wisdom", search:"Search boss…",
+      lgBoth:"Illusion + Wisdom", lgOne:"One of the two", lgHave:"◆ = has it · times in your local time",
+      hArt:"Artwork", hWhere:"Where", hSpawn:"Spawn", hNeed:"Still need", empty:"No artworks match this filter.",
+      owned:n=>`${n} / ${ART.length} artworks`, needOf:(a,b)=>`${a} of ${b}`, everyone:"Everyone ✓",
+      kill:h=>`~${fmtH(h)} after each kill`, ingame:"Use in-game Field Boss timer", nextIn:"in", check:"Check in-game timer",
+      weekly:(d,t)=>`${d} ${t} server`, every:(h,f)=>`Every ${h}h from ${f} server`,
+      ill:"Illusion", wis:"Wisdom", unique:"Unique", heroic:"Heroic", live:"Live · synced with the party", liveRO:"Live · view only",
+      offline:"Not synced — open the party link John shared", nocfg:"Not synced — database not set up yet (see README)", saveErr:"Couldn't save — try again in a moment",
+      ro:"Couldn't save — check the party link", stopped:"Sync stopped — reload the page", connecting:"Connecting…",
+      foot1:"Respawn times for Verteron and Altgard are the Korean-service kill timers (global timers aren't published), and Eltnen/Morheim timers aren't public yet, so trust the in-game map: Exploration → Field Boss. Abyss times are server clock GMT+9.",
+      foot2:"Illusion (Kaisinel) and Wisdom (Lumiel) values come from a fan-run Pantheon database. Chinese names are translations, not official client names. Global drop tables show Dramos, Ducal and Marakha dropping Artwork: Draupnir."},
+  zh:{eyebrow:"永恆紀元2 · 野外與世界首領 萬神殿畫作", title:"隊伍畫作收集表",
+      sub:"成員取得首領畫作時點一下方格。依地區列出所有獨特與英雄等級的野外與世界首領畫作。紫色列＝同時有幻象與智慧。隊伍成員即時同步。",
+      fAll:"全部畫作", fNeed:"仍有人缺", fIW:"幻象＋智慧", search:"搜尋首領…",
+      lgBoth:"幻象＋智慧", lgOne:"其中一項", lgHave:"◆＝已擁有 · 時間為當地時間",
+      hArt:"畫作", hWhere:"地點", hSpawn:"出現時間", hNeed:"尚缺", empty:"沒有符合條件的畫作。",
+      owned:n=>`${n} / ${ART.length} 幅`, needOf:(a,b)=>`${a} / ${b}`, everyone:"全員已取得 ✓",
+      kill:h=>`擊殺後約 ${fmtHzh(h)}`, ingame:"請看遊戲內野外首領計時", nextIn:"還有", check:"請看遊戲內計時",
+      weekly:(d,t)=>`${d} ${t}（伺服器）`, every:(h,f)=>`自 ${f} 起每 ${h} 小時（伺服器）`,
+      ill:"幻象", wis:"智慧", unique:"獨特", heroic:"英雄", live:"即時同步中", liveRO:"即時 · 僅檢視",
+      offline:"未同步 — 請使用 John 分享的隊伍連結", nocfg:"未同步 — 尚未設定資料庫（見 README）", saveErr:"儲存失敗 — 請稍後再試",
+      ro:"無法儲存 — 請確認隊伍連結", stopped:"同步中斷 — 請重新整理", connecting:"連線中…",
+      foot1:"維爾特隆與阿特加德的重生時間為韓服擊殺計時（國際服未公布），艾爾坦與摩海姆計時尚未公開，請以遊戲內地圖為準：探索 → 野外首領。深淵時間為伺服器時間 GMT+9。",
+      foot2:"幻象（凱西內爾）與智慧（盧米艾爾）數值取自玩家整理的萬神殿資料庫。中文名稱為翻譯，非官方客戶端名稱。國際服掉落表顯示德拉摩斯、杜卡爾與瑪拉卡掉落「畫作：德勞普尼爾」。"}
+};
+const DAYS = {en:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], zh:["週日","週一","週二","週三","週四","週五","週六"]};
+
+const TIERS = [
+  {id:"vert", en:"Verteron", zh:"維爾特隆", en2:"Elyos · Lv 45", zh2:"天族 · Lv 45"},
+  {id:"alt",  en:"Altgard", zh:"阿特加德", en2:"Asmodian · Lv 45", zh2:"魔族 · Lv 45"},
+  {id:"shared", en:"Both factions", zh:"兩族共通", en2:"Lv 48–51 · Verteron and Altgard", zh2:"Lv 48–51 · 維爾特隆與阿特加德"},
+  {id:"elt", en:"Eltnen", zh:"艾爾坦", en2:"Elyos · Lv 80", zh2:"天族 · Lv 80"},
+  {id:"mor", en:"Morheim", zh:"摩海姆", en2:"Asmodian · Lv 80", zh2:"魔族 · Lv 80"},
+  {id:"lower", en:"Chaotic Lower Reshanta", zh:"混沌下層雷珊塔", en2:"Abyss · Lv 65", zh2:"深淵 · Lv 65"},
+  {id:"middle", en:"Chaotic Middle Reshanta", zh:"混沌中層雷珊塔", en2:"Abyss · Lv 80 · Item Level 3,000", zh2:"深淵 · Lv 80 · 裝備等級 3,000"}
+];
+
+// [id, English name, Chinese name, tier, Illusion pts, Wisdom pts, schedule, where, boss note]
+// schedule: number = hours after kill; "g" = in-game timer; object = weekly/interval
+const K = h=>({type:"kill",h});
+const W3 = {type:"weekly",days:[1,4,6],at:"21:30"};
+const ALL_ART = [
+  ["kernon","Kernon of the West","西方的克爾農","vert",0,2,K(.5),"Western Cantas Valley"],
+  ["neikel","Neikel of the East","東方的奈克爾","vert",2,0,K(.5),"Eastern Cantas Valley"],
+  ["kutar","Rotten Kutar","腐爛的庫塔","vert",2,0,K(.5),"Ellun River Marsh"],
+  ["korin","Blooming Korin","盛開的柯林","vert",0,2,K(1),"Ellun River Midstream"],
+  ["teegant","Bodyguard Teegant","護衛蒂甘特","vert",0,2,K(1.5),"Verteron Fortress Ruins"],
+  ["kusan","Kusan the Mad Gladiator","狂劍士庫桑","vert",3,0,K(2),"Verteron Fortress Ruins"],
+  ["garshim","Ritualist Garshim","祭司加爾辛","vert",3,0,K(2),"Verteron Fortress Ruins"],
+  ["aulla","Scholar Aulla","學者奧拉","vert",3,3,K(2),"Aullaeu Village"],
+  ["taulo","Chaser Taulo","追蹤者陶洛","vert",3,3,K(2),"Aullaeu Village"],
+  ["pnyn","Bloodfang Pnyn","血牙普寧","vert",0,0,K(3),"Northern Tolbas Forest"],
+  ["saursus","Furious Saursus","狂怒的索爾蘇斯","vert",0,0,K(3),"Night Dew Cave"],
+  ["layla","Heretic Layla","異端者萊拉","vert",0,0,K(3),"Rock Tomb Hill"],
+  ["moshav","Harvest Manager Moshav","收穫管理者莫夏夫","vert",3,3,K(3),"Drana Processing Area"],
+  ["aullamu","Forest Warrior Aullamu","森林戰士奧拉姆","vert",4,4,K(4),"Aullaeu Village"],
+  ["lawa","Black Tentacle Lawa","黑觸手拉瓦","vert",4,4,K(4),"Altamia Canyon"],
+  ["demiros","Centurion Demiros","百夫長德米羅斯","vert",4,4,K(4),"Destroyed Temple Site"],
+  ["knash","Sentinel K'nash","哨兵克納許","vert",4,4,K(4),"Drana Processing Area"],
+  ["ansas","Divine Ansas","神聖的安薩斯","vert",4,4,K(6),"Contaminated Sanctum"],
+  ["setram","Researcher Setram","研究員賽特拉姆","vert",4,0,K(6),"Nahid Brigade Fortress"],
+  ["kasia","Phantasm Kasia","幻影卡西亞","vert",4,4,K(6),"Garden of the Illusion God"],
+
+  ["danar","Melted Danar","熔化的達納爾","alt",0,0,K(.5),"Dredgion Crash Site"],
+  ["aed","Black Warrior Aed","黑戰士艾德","alt",2,2,K(.5),"Nameless Cemetery"],
+  ["rajit","Faithful Rajit","忠誠的拉吉特","alt",0,0,K(.5),"Sanctum Outpost"],
+  ["vargor","Berserker Vargor","狂戰士瓦爾戈","alt",2,2,K(1),"Sanctum Outpost"],
+  ["lannar","Blood Warrior Lannar","血戰士蘭納爾","alt",2,0,K(1.5),"Moslan Forest"],
+  ["garsan","Predator Garsan","掠食者加爾桑","alt",3,0,K(2),"Moslan Forest"],
+  ["trid","Deceiver Trid","欺詐者特里德","alt",0,3,K(2),"Uruthumheim"],
+  ["kelpina","Blue Wave Kelpina","藍浪凱爾皮娜","alt",0,3,K(2),"Purifying Forest"],
+  ["nutah","High Overseer Nutah","高階監督官努塔","alt",0,3,K(2),"Dranactus"],
+  ["resana","Advisor Resana","顧問蕾莎娜","alt",3,0,K(3),"Dranactus"],
+  ["linx","Special Operations Leader Linx","特戰隊長林克斯","alt",0,3,K(3),"Basfelt Ruins"],
+  ["hardirun","Addicted Hardirun","成癮的哈迪倫","alt",0,0,K(3),"Fafnite Deposit"],
+  ["shujakan","Veteran Shujakan","老兵舒賈坎","alt",3,3,K(3),"Black Claw Village"],
+  ["newbold","Desecrator Newbold","褻瀆者紐博爾德","alt",4,4,K(4),"Basfelt Ruins"],
+  ["axios","Specter Archon Axios","幽靈執政官阿克西歐斯","alt",4,0,K(4),"Basfelt Ruins"],
+  ["barthien","Executioner Barthien","處刑者巴爾提安","alt",4,0,K(4),"Western Gribade Highland"],
+  ["karuka","Visionary Karuka","預言者卡魯卡","alt",4,0,K(4),"Black Claw Village"],
+  ["guruta","Drakan Battalion Weapon Guruta","龍族大隊兵器古魯塔","alt",0,0,K(6),"Eastern Gribade Highland"],
+  ["vishwada","Dark Shadow Vishwada","暗影維許瓦達","alt",4,0,K(6),"Lagta Fortress"],
+  ["shylak","Sharp Shylak","銳利的夏拉克","alt",4,4,K(6),"Impetusium Square"],
+
+  ["dartan","Silent Dartan","沉默的達爾坦","shared",0,4,K(6),"S. Altamia Highland · Basfelt Ruins"],
+  ["kashapa","Soul Ruler Kashapa","靈魂支配者卡夏帕","shared",0,4,K(6),"E. Altamia Highland · Fafnite Deposit"],
+  ["lagta","High Commander Lagta","高階指揮官拉格塔","shared",0,4,K(12),"Drana Plantation · Lagta Fortress"],
+  ["egartua","Eternal Gartua","永恆的加爾圖阿","shared",5,5,K(12),"Eternal Isle (Elyos)"],
+  ["igartua","Immortal Gartua","不朽的加爾圖阿","shared",5,5,K(12),"Immortal Isle (Asmodian)"],
+
+  ["verenom","Agglomerated Verenom","凝聚的維列諾姆","elt",3,0,"g","Ruberein Highland"],
+  ["vigor","Old Boss Vigor","老大維格","elt",3,3,"g","Ruberein Highland"],
+  ["vivajra","Deputy Commander Vivajra","副指揮官維瓦吉拉","elt",4,4,"g","Kuriullu Valley"],
+  ["ktima","First Test Subject K'tima","第一號實驗體克提瑪","elt",0,0,"g","Fractured Land"],
+  ["nihogg","Rabid Nihogg","狂暴的尼霍格","elt",0,3,"g","Fractured Land"],
+  ["egetis","Gluttonous Egetis","貪食的艾格提斯","elt",0,0,"g","Eltnen Barrier Tower Ruins"],
+  ["superbia","Superbia, Sacred Beast of Life","生命聖獸蘇佩比亞","elt",3,0,"g","Eltnen Barrier Tower Ruins"],
+  ["lamphus","Lamphus of Agony","苦痛的蘭弗斯","elt",3,3,"g","Eastern Dartas Plains"],
+  ["mino","Three-Horned Mino","三角米諾","elt",3,0,"g","Western Dartas Plains"],
+  ["meltlim","Rotten Root Meltlim","腐根梅爾特林","elt",3,3,"g","Mystic Spring of Anathe"],
+  ["zvein","Severed Wings Zvein","斷翼茲維因","elt",0,3,"g","Eiron Hill"],
+  ["karkoti","Third Unit Captain Karkoti","第三部隊長卡爾柯提","elt",4,0,"g","Lankusis Highland"],
+
+  ["glacia","Azure Tear Glacia","蒼淚葛拉西亞","mor",0,3,"g","Nephra Snowfield"],
+  ["renulf","Crimson Blizzard Renulf","赤雪雷努夫","mor",3,0,"g","Nephra Snowfield"],
+  ["harkhan","Frostarmor Harkhan","霜甲哈爾坎","mor",3,3,"g","Nephra Snowfield"],
+  ["minasara","Third Unit Captain Minasara","第三部隊長米娜莎拉","mor",4,0,"g","Nephra Snowfield"],
+  ["sarvakha","Deputy Commander Sarvakha","副指揮官薩爾瓦卡","mor",4,4,"g","Halabana Canyon"],
+  ["pargon","Edgewalker Pargon","刃行者帕爾貢","mor",0,3,"g","Patamor Plains Outskirts"],
+  ["balakh","Predator Colossus Balakh","掠食巨像巴拉赫","mor",0,0,"g","Patamor Plains"],
+  ["verant","Elite Inquisitor Verant","精英審問官維蘭特","mor",3,3,"g","Iralcig Highland"],
+  ["batu","Lava Heart Batu","熔岩之心巴圖","mor",3,0,"g","Iralcig Highland"],
+  ["fios","Wings of Hellfire Fios","獄火之翼菲歐斯","mor",0,0,"g","Iralcig Highland"],
+  ["bulagan","Mad Watcher Bulagan","瘋狂監視者布拉甘","mor",0,3,"g","Muspel Volcano Zone"],
+  ["grymnir","Vulcanarch Grymnir","火山君主格林尼爾","mor",0,0,"g","Muspel Volcano Zone"],
+
+  ["kaira","Watcher Kaira","監視者凱拉","lower",4,4,{type:"every",from:"01:00",mins:180},"Roams 4 islands · Executor Kaira: Sulfur Tree Island","Watcher Kaira or Executor Kaira (Mon/Thu/Sat 21:30)"],
+  ["argo","Argo, the Spirit King","精靈王阿爾格","lower",4,0,W3,"Siel's Heart","Executor Argo"],
+  ["tamasa","Executor Tamasa","執行者塔瑪莎","lower",0,4,W3,"Reshanta's Root","Executor Tamasa"],
+  ["nahma","Guardian Lord Nahma","守護君主納瑪","lower",5,0,{type:"weekly",days:[0,5],at:"21:00"},"Reshanta's Root · Enraged: Steel Titan's Grave","Nahma or Enraged Nahma (Middle)"],
+  ["draupnir","Draupnir","德勞普尼爾","middle",4,4,W3,"Corroded Heart · Eroded Fragment Area · Steel Titan's Grave","Dramos, Turncoat Ducal or Ravager Marakha"]
+].map(r=>({id:r[0],en:r[1],zh:r[2],tier:r[3],I:r[4],W:r[5],sched:typeof r[6]==="string"?{type:"game"}:r[6],where:r[7],note:r[8]||""}));
+// Only Unique and Heroic artworks are tracked (Epic and Rare ones are left out).
+const HEROIC = new Set(["egartua","igartua","nahma"]);
+const UNIQUE = new Set(["aullamu","lawa","demiros","knash","ansas","setram","kasia","newbold","axios","barthien","karuka","guruta","vishwada","shylak","dartan","kashapa","lagta","vivajra","karkoti","minasara","sarvakha","kaira","argo","tamasa","draupnir"]);
+const ART = ALL_ART.filter(a=>HEROIC.has(a.id)||UNIQUE.has(a.id)).map(a=>({...a,grade:HEROIC.has(a.id)?"heroic":"unique"}));
+
+/* ---------- state ---------- */
+let lang = "en";
+try{ const s=localStorage.getItem("lang"); if(s==="zh"||s==="en") lang=s; }catch(e){}
+let owned = Object.fromEntries(MEMBERS.map(m=>[m,{}]));
+let db=null, canWrite=true, filter="all", query="", syncKey="connecting";
+const busy={}, pending={};
+const t = k => STR[lang][k];
+
+/* ---------- schedule ---------- */
+function fmtH(h){ return h<1 ? `${Math.round(h*60)} min` : `${h}h`; }
+function fmtHzh(h){ return h<1 ? `${Math.round(h*60)} 分鐘` : `${h} 小時`; }
+function nextSpawn(s){
+  const now=Date.now(), off=SRV_OFFSET*3600e3, srv=new Date(now+off);
+  const base=Date.UTC(srv.getUTCFullYear(),srv.getUTCMonth(),srv.getUTCDate());
+  if(s.type==="weekly"){ const [h,m]=s.at.split(":").map(Number);
+    for(let d=0; d<8; d++){ const x=base+d*864e5+(h*60+m)*6e4; if(s.days.includes(new Date(x).getUTCDay()) && x-off>now) return x-off; } }
+  if(s.type==="every"){ const [h,m]=s.from.split(":").map(Number);
+    for(let d=0; d<2; d++) for(let x=base+d*864e5+(h*60+m)*6e4; x<base+(d+1)*864e5; x+=s.mins*6e4){ if(x-off>now) return x-off; } }
+  return null;
+}
+function fmtIn(ms){ const m=Math.max(0,Math.round(ms/6e4)), d=Math.floor(m/1440), h=Math.floor(m%1440/60), mm=m%60;
+  if(lang==="zh") return d?`${d}天${h}小時`:h?`${h}小時${mm}分`:`${mm}分`;
+  return d?`${d}d ${h}h`:h?`${h}h ${mm}m`:`${mm}m`; }
+function whenHTML(a){
+  const s=a.sched;
+  if(s.type==="kill") return `<div class="srv">${esc(t("kill")(s.h))}</div>`;
+  if(s.type==="game") return `<div class="srv">${esc(t("ingame"))}</div>`;
+  const x=nextSpawn(s);
+  const loc=lang==="zh"?"zh-TW":undefined;
+  const next = x? `<div class="next">${esc(t("nextIn"))} ${esc(fmtIn(x-Date.now()))} · ${esc(new Date(x).toLocaleString(loc,{weekday:"short",hour:"numeric",minute:"2-digit"}))}</div>` : `<div class="next">${esc(t("check"))}</div>`;
+  const lbl = s.type==="weekly" ? t("weekly")(s.days.map(d=>DAYS[lang][d]).join("/"), s.at) : t("every")(s.mins/60, s.from);
+  return next+`<div class="srv">${esc(lbl)}</div>`;
+}
+
+/* ---------- render ---------- */
+const $=id=>document.getElementById(id);
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function iwClass(a){ return a.I&&a.W ? "both" : (a.I||a.W) ? "one" : ""; }
+function build(){
+  $("headRow").insertAdjacentHTML("beforeend", MEMBERS.map(m=>`<th class="m">${esc(m)}</th>`).join("")+`<th id="hNeed"></th>`);
+  const rows=[];
+  for(const tier of TIERS){
+    rows.push(`<tr class="tier" data-tier="${tier.id}"><td colspan="${4+MEMBERS.length}"><span class="tn"></span><small class="ts"></small></td></tr>`);
+    for(const a of ART.filter(x=>x.tier===tier.id)){
+      rows.push(`<tr data-art="${a.id}" data-tierrow="${tier.id}" class="${iwClass(a)}">
+        <td class="art"><div class="t" id="n-${a.id}"></div><div class="b" id="b-${a.id}"></div></td>
+        <td class="where">${esc(a.where)}</td>
+        <td class="when" id="when-${a.id}"></td>
+        ${MEMBERS.map(m=>`<td class="c"><button class="cell" id="c-${a.id}-${m}" data-a="${a.id}" data-m="${esc(m)}" aria-pressed="false">·</button></td>`).join("")}
+        <td><span class="need" id="need-${a.id}"></span></td></tr>`);
+    }
+  }
+  $("body").innerHTML=rows.join("");
+  $("party").innerHTML=MEMBERS.map(m=>`<div class="pm"><b>${esc(m)}</b><span class="n" id="pn-${m}"></span><div class="bar"><i id="pb-${m}" style="width:0"></i></div></div>`).join("");
+  $("body").addEventListener("click",e=>{ const b=e.target.closest(".cell"); if(b) toggle(b.dataset.m,b.dataset.a); });
+  for(const f of ["all","need","iw"]) $("f-"+f).onclick=()=>{ filter=f; for(const g of ["all","need","iw"]) $("f-"+g).setAttribute("aria-pressed",g===f); render(); };
+  $("q").addEventListener("input",e=>{ query=e.target.value.trim().toLowerCase(); render(); });
+  $("lang-en").onclick=()=>setLang("en"); $("lang-zh").onclick=()=>setLang("zh");
+}
+function setLang(l){ lang=l; try{localStorage.setItem("lang",l);}catch(e){} applyLang(); render(); renderTimes(); }
+function applyLang(){
+  document.documentElement.lang = lang==="zh"?"zh-Hant":"en";
+  $("lang-en").setAttribute("aria-pressed",lang==="en"); $("lang-zh").setAttribute("aria-pressed",lang==="zh");
+  document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.dataset.i));
+  $("hNeed").textContent=t("hNeed"); $("q").placeholder=t("search");
+  for(const tier of TIERS){ const r=document.querySelector(`tr[data-tier="${tier.id}"]`); r.querySelector(".tn").textContent=tier[lang]; r.querySelector(".ts").textContent=tier[lang+"2"]; }
+  for(const a of ART){
+    $(`n-${a.id}`).textContent = (lang==="zh"?"畫作：":"Artwork: ")+a[lang];
+    const chips=[`<span class="grade g-${a.grade}">${esc(t(a.grade))}</span>`]; if(a.I) chips.push(`<span class="dom i">${esc(t("ill"))} ${a.I}</span>`); if(a.W) chips.push(`<span class="dom w">${esc(t("wis"))} ${a.W}</span>`);
+    const note = a.note ? esc(a.note) : (a.tier==="elt"||a.tier==="mor") ? "" : (lang==="zh"? "掉落率 25%" : "25% per kill");
+    $(`b-${a.id}`).innerHTML = chips.join("") + `<span>${note}</span>`;
+    for(const m of MEMBERS) $(`c-${a.id}-${m}`).setAttribute("aria-label", `${m}: ${a[lang]}`);
+  }
+  setSync(syncKey);
+}
+function render(){
+  let shown=0;
+  for(const a of ART){
+    let have=0;
+    for(const m of MEMBERS){ const on=!!owned[m][a.id]; if(on) have++;
+      const b=$(`c-${a.id}-${m}`); b.setAttribute("aria-pressed",on); b.textContent=on?"◆":"·"; b.disabled=!canWrite; }
+    const need=MEMBERS.filter(m=>!owned[m][a.id]), n=$(`need-${a.id}`);
+    n.textContent = need.length? t("needOf")(need.length,MEMBERS.length) : t("everyone");
+    n.className="need"+(need.length?"":" done"); n.title=need.join(", ");
+    const match = (!query || a.en.toLowerCase().includes(query) || a.zh.includes(query) || a.where.toLowerCase().includes(query))
+      && (filter!=="need" || need.length) && (filter!=="iw" || (a.I && a.W));
+    document.querySelector(`tr[data-art="${a.id}"]`).classList.toggle("hide",!match); if(match) shown++;
+  }
+  for(const tier of TIERS){
+    const any=[...document.querySelectorAll(`tr[data-tierrow="${tier.id}"]`)].some(r=>!r.classList.contains("hide"));
+    document.querySelector(`tr[data-tier="${tier.id}"]`).classList.toggle("hide",!any);
+  }
+  $("empty").hidden = shown>0;
+  for(const m of MEMBERS){ const c=ART.filter(a=>owned[m][a.id]).length;
+    $(`pn-${m}`).textContent=t("owned")(c); $(`pb-${m}`).style.width=(c/ART.length*100)+"%"; }
+}
+function renderTimes(){ for(const a of ART) $(`when-${a.id}`).innerHTML=whenHTML(a); }
+function setSync(k){ syncKey=k; $("sync").className="sync "+(k==="live"||k==="liveRO"?"live":k==="connecting"?"":"off"); $("syncText").textContent=t(k); }
+
+/* ---------- data ---------- */
+function toggle(m,a){
+  if(!canWrite) return;
+  const next={...owned[m]}; if(next[a]) delete next[a]; else next[a]=true;
+  owned[m]=next; render(); if(db) queueWrite(m);
+}
+async function queueWrite(m){
+  pending[m]=true; if(busy[m]) return; busy[m]=true;
+  while(pending[m]){ pending[m]=false;
+    try{ await fs.setDoc(fs.doc(db,"parties",partyKey,"members",m),{owned:owned[m]}); setSync("live"); }
+    catch(e){ if(e&&e.code==="permission-denied"){ canWrite=false; setSync("ro"); render(); break; } setSync("saveErr"); } }
+  busy[m]=false;
+}
+// The party key travels in the link (#party=...) and is remembered on this device, so it never lives in the public repo.
+function readPartyKey(){
+  const m=location.hash.match(/party=([A-Za-z0-9_-]{16,64})/);
+  if(m){ try{localStorage.setItem("partyKey",m[1]);}catch(e){} return m[1]; }
+  try{ return localStorage.getItem("partyKey"); }catch(e){ return null; }
+}
+let fs=null, partyKey=null;
+async function init(){
+  build(); applyLang(); render(); renderTimes(); setInterval(renderTimes,30000);
+  const cfg=window.FIREBASE_CONFIG;
+  if(!cfg || !cfg.projectId || cfg.projectId.startsWith("PASTE")){ canWrite=false; render(); setSync("nocfg"); return; }
+  partyKey=readPartyKey();
+  if(!partyKey){ canWrite=false; render(); setSync("offline"); return; }
+  try{
+    const base="https://www.gstatic.com/firebasejs/10.12.2/";
+    const app=await import(base+"firebase-app.js");
+    fs=await import(base+"firebase-firestore.js");
+    db=fs.getFirestore(app.initializeApp(cfg));
+  }catch(e){ canWrite=false; render(); setSync("stopped"); return; }
+  fs.onSnapshot(fs.collection(db,"parties",partyKey,"members"), snap=>{
+    for(const d of snap.docs){ if(MEMBERS.includes(d.id) && !busy[d.id]) owned[d.id]={...(d.data()?.owned||{})}; }
+    render(); setSync("live");
+  }, ()=>setSync("stopped"));
+}
+init();
+</script>
+</body>
+</html>

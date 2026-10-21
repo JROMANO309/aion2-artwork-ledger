@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Only someone who knows the party key (from the shared link) can find the party's data.
+    // Listing all parties is not allowed, so the key works like a password.
+    match /parties/{partyKey}/members/{member} {
+      allow get, list: if partyKey.size() >= 16;
+      allow write: if partyKey.size() >= 16
+        && member in ['Powerful', 'Lovecd', 'nottom', 'mika', 'Sticky']
+        && request.resource.data.keys().hasOnly(['owned'])
+        && request.resource.data.owned is map
+        && request.resource.data.owned.size() <= 100;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
