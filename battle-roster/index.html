@@ -178,6 +178,7 @@ const FORCES=[
   {id:"peelers",name:"Peelers",job:"Keep the backline safe",lead:"Backline Leader"},
   {id:"divers",name:"Divers",job:"Disrupt & eliminate",lead:"Divers Leader"}
 ];
+const LIVE_URL="https://claude.ai/artifact/3XBRiJLL88CyXNSyCyY4Fe";
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString("en-US");
 let db=null, uid=null, isAdmin=false, canWrite=true;
@@ -354,7 +355,8 @@ async function removeDoc(id){
 
 $("form").addEventListener("submit",async e=>{
   e.preventDefault();
-  if(!db||!canWrite)return;
+  if(!db)return say("The roster is still connecting. Wait a moment and try again, or reload the page.","err");
+  if(!canWrite)return say("Your access to this page doesn't allow signing up. Ask the organizer for Contributor access.","err");
   const name=$("name").value.trim(), cls=$("cls").value.trim();
   const cpRaw=$("cp").value.replace(/[,\s.]/g,"");
   if(!name)return say("Enter your character name.","err"),$("name").focus();
@@ -404,6 +406,12 @@ $("export").onclick=async()=>{
 
 render();
 (async()=>{
+  if(!window.claude?.use){
+    const n=$("notice");n.textContent="This copy of the roster can't save signups. Sign up on the live page: ";
+    const a=document.createElement("a");a.href=LIVE_URL;a.textContent=LIVE_URL;a.style.color="var(--accent)";n.append(a);
+    lockForm("Sign-ups don't save on this copy. Use the live sign-up page linked below.");
+    return;
+  }
   const [d,u]=await Promise.all([claude.use("db"),claude.use("user")]);
   db=d;
   if(!db){
