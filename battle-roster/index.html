@@ -90,6 +90,18 @@ li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:i
 .mini:hover{color:var(--fg);border-color:var(--muted)}
 .mini.danger{color:var(--danger)}
 .empty{padding:18px 14px;color:var(--muted);font-size:13px}
+.heal{margin:8px 6px 0;padding:10px;border:1px solid color-mix(in srgb,var(--f-healers) 35%,var(--line));border-radius:6px;background:color-mix(in srgb,var(--f-healers) 7%,transparent);display:flex;flex-direction:column;gap:6px}
+.heal .ht{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--f-healers);font-weight:600}
+.heal .ht .need{font-variant-numeric:tabular-nums;color:var(--fg)}
+.heal .ht .need.short{color:var(--danger)}
+.heal .hr{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.heal .hr span:first-child{overflow-wrap:anywhere;min-width:0}
+.heal .hr span:last-child{font-variant-numeric:tabular-nums;font-family:var(--display);font-weight:600;color:var(--muted)}
+.heal .none{font-size:12.5px;color:var(--muted)}
+.tag{display:inline-block;font-family:var(--display);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:3px;border:1px solid var(--tc,var(--line));color:var(--tc,var(--muted));margin-left:6px;white-space:nowrap}
+.coverage{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.coverage b{color:var(--fg)}
+.coverage .bad{color:var(--danger)}
 .notice{padding:12px 14px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:14px}
 
 @media (max-width:1100px){.forces{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -152,6 +164,7 @@ li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:i
       <h2>Formation</h2>
       <button class="btn ghost" type="button" id="export" hidden>Export CSV</button>
     </div>
+    <div class="coverage" id="coverage" aria-live="polite"></div>
     <div class="notice" id="notice">Loading the roster…</div>
     <div class="forces" id="forces"></div>
   </section>
@@ -191,6 +204,36 @@ function setForce(id){
 }
 function say(t,kind){const m=$("msg");m.textContent=t||"";m.className="msg"+(kind?" "+kind:"");}
 
+// Healer assignment: each group needs 1 healer per 4 members (rounded up).
+// Groups are ranked by total CP; the strongest healers go to the strongest groups.
+// When there aren't enough healers, slots are handed out one round at a time
+// (every group gets its 1st healer before any group gets its 2nd), strongest group first.
+const MEMBERS_PER_HEALER=4;
+const GROUPS=FORCES.filter(f=>f.id!=="healers").map(f=>f.id);
+const byCp=(a,b)=>(+b.cp||0)-(+a.cp||0)||String(a.name).localeCompare(String(b.name));
+function assignHealers(all){
+  const groups=GROUPS.map(id=>{
+    const m=all.filter(r=>r.force===id);
+    return {id,n:m.length,cp:m.reduce((s,r)=>s+(+r.cp||0),0),need:Math.ceil(m.length/MEMBERS_PER_HEALER),got:0};
+  }).filter(g=>g.n>0).sort((a,b)=>b.cp-a.cp||b.n-a.n);
+  const healers=all.filter(r=>r.force==="healers").sort(byCp);
+  let left=healers.length,progress=true;
+  while(left>0&&progress){
+    progress=false;
+    for(const g of groups){if(left>0&&g.got<g.need){g.got++;left--;progress=true;}}
+  }
+  const byGroup={},need={},rank={},assignedTo=new Map();
+  let i=0;
+  groups.forEach((g,k)=>{
+    byGroup[g.id]=healers.slice(i,i+g.got);
+    byGroup[g.id].forEach(h=>assignedTo.set(h.id,g.id));
+    need[g.id]=g.need;rank[g.id]=k+1;i+=g.got;
+  });
+  const totalNeed=groups.reduce((s,g)=>s+g.need,0);
+  return {byGroup,need,rank,assignedTo,reserve:healers.slice(i),totalNeed,filled:i,healers:healers.length};
+}
+const forceName=id=>FORCES.find(f=>f.id===id)?.name||id;
+
 function render(){
   const all=[...rows.entries()].map(([id,d])=>({id,...d}));
   const total=all.reduce((s,r)=>s+(+r.cp||0),0);
@@ -198,6 +241,18 @@ function render(){
   $("tCp").textContent=fmt(total);
   $("tAvg").textContent=all.length?fmt(Math.round(total/all.length)):"–";
   $("export").hidden=!all.length;
+
+  const A=assignHealers(all);
+  const cov=$("coverage");cov.replaceChildren();
+  if(all.length){
+    const short=A.totalNeed-A.filled;
+    const a=document.createElement("span");a.innerHTML="Healer slots <b></b>";a.querySelector("b").textContent=`${A.filled} / ${A.totalNeed} filled`;
+    const b=document.createElement("span");
+    if(short>0){b.className="bad";b.textContent=`${short} more healer${short===1?"":"s"} needed`;}
+    else b.textContent=A.reserve.length?`${A.reserve.length} healer${A.reserve.length===1?"":"s"} in reserve`:"Every group covered";
+    const c=document.createElement("span");c.textContent=`1 healer per ${MEMBERS_PER_HEALER} members · strongest healers go to the strongest groups (total CP)`;
+    cov.append(a,b,c);
+  }
 
   const host=$("forces");host.replaceChildren();
   for(const f of FORCES){
@@ -213,12 +268,34 @@ function render(){
     col.querySelector(".s1").textContent=fmt(sum);
     col.querySelector(".s2").textContent=list.length?fmt(Math.round(sum/list.length)):"–";
     const ol=col.querySelector("ol");
+    if(f.id!=="healers"&&list.length){
+      const hs=A.byGroup[f.id]||[],need=A.need[f.id]||0;
+      const box=document.createElement("div");box.className="heal";
+      box.innerHTML=`<div class="ht"><span></span><span class="need"></span></div>`;
+      box.querySelector(".ht span").textContent=`Healers · #${A.rank[f.id]} by CP`;
+      const nd=box.querySelector(".need");nd.textContent=`${hs.length}/${need}`;if(hs.length<need)nd.classList.add("short");
+      if(!hs.length){const n=document.createElement("div");n.className="none";n.textContent="No healer available yet";box.append(n);}
+      for(const h of hs){
+        const r=document.createElement("div");r.className="hr";
+        const a=document.createElement("span");a.textContent=(h.name||"Unnamed")+(h.cls?` · ${h.cls}`:"");
+        const b=document.createElement("span");b.textContent=fmt(h.cp);
+        r.append(a,b);box.append(r);
+      }
+      col.insertBefore(box,ol);
+    }
     if(!list.length){const e=document.createElement("li");e.className="empty";e.textContent="No one yet. Be the first to stand here.";ol.append(e);}
     for(const r of list){
       const li=document.createElement("li");li.className="row"+(r.id===uid?" mine":"");
       const pn=document.createElement("div");pn.className="pn";pn.textContent=r.name||"Unnamed";
       if(r.lead){const s=document.createElement("span");s.className="star";s.textContent="★ LEAD";s.title=f.lead;pn.append(s);}
       const pc=document.createElement("div");pc.className="pc";pc.textContent=(r.cls||"—")+(r.id===uid?" · you":"");
+      if(f.id==="healers"){
+        const to=A.assignedTo.get(r.id);
+        const t=document.createElement("span");t.className="tag";
+        if(to){t.textContent="→ "+forceName(to);t.style.setProperty("--tc",`var(--f-${to})`);}
+        else t.textContent="Reserve";
+        pc.append(t);
+      }
       const cp=document.createElement("div");cp.className="cp";cp.textContent=fmt(r.cp);
       li.append(pn,cp,pc);
       if(isAdmin){
@@ -313,10 +390,14 @@ $("export").onclick=async()=>{
   const dl=await claude.use("downloads");
   if(!dl)return say("Export isn't available here.","err");
   const esc=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
-  const lines=[["Force","Name","Class","CP","Leader"].join(",")];
+  const all=[...rows.entries()].map(([id,d])=>({id,...d}));
+  const A=assignHealers(all);
+  const lines=[["Force","Name","Class","CP","Leader","Healing for"].join(",")];
   for(const f of FORCES){
-    [...rows.values()].filter(r=>r.force===f.id).sort((a,b)=>(+b.cp||0)-(+a.cp||0))
-      .forEach(r=>lines.push([f.name,r.name,r.cls,r.cp,r.lead?"Yes":""].map(esc).join(",")));
+    all.filter(r=>r.force===f.id).sort(byCp).forEach(r=>{
+      const to=f.id==="healers"?(A.assignedTo.has(r.id)?forceName(A.assignedTo.get(r.id)):"Reserve"):"";
+      lines.push([f.name,r.name,r.cls,r.cp,r.lead?"Yes":"",to].map(esc).join(","));
+    });
   }
   try{await dl.save({filename:"server-battle-roster.csv",data:lines.join("\n")});}catch{}
 };
