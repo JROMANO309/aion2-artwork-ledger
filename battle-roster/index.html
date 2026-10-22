@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Server Battle Roster</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,6 +29,9 @@
   --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
 }
 *{box-sizing:border-box}
+html{padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;
   background-image:radial-gradient(1200px 500px at 50% -200px,#16305a 0%,transparent 70%)}
 .wrap{max-width:1400px;margin:0 auto;padding-block:28px 48px;
@@ -118,6 +126,8 @@ li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:i
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
+</head>
+<body>
 <div class="wrap">
   <header>
     <div>
@@ -162,7 +172,7 @@ li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:i
   <section style="display:flex;flex-direction:column;gap:12px">
     <div class="board-head">
       <h2>Formation</h2>
-      <button class="btn ghost" type="button" id="export" hidden>Export CSV</button>
+      <div class="actions"><button class="btn ghost" type="button" id="copyPlayer" hidden>Copy player link</button><button class="btn ghost" type="button" id="copyOfficer" hidden>Copy officer link</button><button class="btn ghost" type="button" id="newRoster" hidden>Start a new roster</button><button class="btn ghost" type="button" id="export" hidden>Export CSV</button></div>
     </div>
     <div class="coverage" id="coverage" aria-live="polite"></div>
     <div class="notice" id="notice">Loading the roster…</div>
@@ -170,6 +180,7 @@ li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:i
   </section>
 </div>
 
+<script src="../config.js"></script>
 <script>
 const FORCES=[
   {id:"frontline",name:"Frontline",job:"Open the path",lead:"Frontline Leader"},
@@ -178,10 +189,9 @@ const FORCES=[
   {id:"peelers",name:"Peelers",job:"Keep the backline safe",lead:"Backline Leader"},
   {id:"divers",name:"Divers",job:"Disrupt & eliminate",lead:"Divers Leader"}
 ];
-const LIVE_URL="https://claude.ai/artifact/3XBRiJLL88CyXNSyCyY4Fe";
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString("en-US");
-let db=null, uid=null, isAdmin=false, canWrite=true;
+let db=null, uid=null, isAdmin=false;
 let rows=new Map();      // docId -> data
 let chosen=null;         // force id
 let editingId=null;      // doc being edited (null = own)
@@ -337,37 +347,50 @@ function endEdit(){editingId=null;$("cancel").hidden=true;fillFrom(uid&&rows.get
 $("cancel").onclick=()=>{endEdit();say("");};
 $("forOther").onchange=()=>{if($("forOther").checked){editingId=null;$("cancel").hidden=true;fillFrom(null);$("formTitle").textContent="Add a player";}else fillFrom(uid&&rows.get(uid));syncOwn();};
 
+// ---- Storage: Firestore at rosters/{rosterKey}/signups/{signupId} ----
+// The roster key travels in the link (#roster=...) and is remembered on this device,
+// so it never lives in the public repo. Officer tools show when the link ends in &officer.
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+function readHash(){
+  const h=location.hash.slice(1);
+  const m=h.match(/(?:^|&)roster=([A-Za-z0-9_-]{16,64})/);
+  const key=m?m[1]:store("rosterKey");
+  if(m)store("rosterKey",m[1]);
+  return {key,officer:/(?:^|&)officer(?:&|=|$)/.test(h)};
+}
+function randomId(n){const a="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";const b=new Uint8Array(n);crypto.getRandomValues(b);return [...b].map(x=>a[x%a.length]).join("");}
+let fs=null, rosterKey=null;
+const signupsCol=()=>fs.collection(db,"rosters",rosterKey,"signups");
+
 async function save(id,data,merge){
   try{
-    const ref=db.collection("signups").doc(id);
-    if(merge)await ref.update(data);else await ref.set(data);
+    const ref=fs.doc(signupsCol(),id);
+    if(merge)await fs.updateDoc(ref,data);else await fs.setDoc(ref,data);
     return true;
   }catch(e){
-    if(e?.code==="invalid_argument"&&!isAdmin){canWrite=false;lockForm("You can view the roster, but your access to this page doesn't allow signing up. Ask the organizer for Contributor access.");}
-    else say(e?.code==="quota_exceeded"?"The roster is full.":"That didn't save. Try again in a moment.","err");
+    say(e?.code==="permission-denied"?"The roster rejected that entry. Check the name, class and CP and try again.":"That didn't save. Check your connection and try again.","err");
     return false;
   }
 }
 async function removeDoc(id){
-  try{await db.collection("signups").doc(id).delete();if(editingId===id)endEdit();say("Removed.","ok");}
+  try{await fs.deleteDoc(fs.doc(signupsCol(),id));if(editingId===id)endEdit();say("Removed.","ok");}
   catch{say("Couldn't remove that entry. Try again.","err");}
 }
 
 $("form").addEventListener("submit",async e=>{
   e.preventDefault();
-  if(!db)return say("The roster is still connecting. Wait a moment and try again, or reload the page.","err");
-  if(!canWrite)return say("Your access to this page doesn't allow signing up. Ask the organizer for Contributor access.","err");
+  if(!db)return say(rosterKey?"The roster is still connecting. Wait a moment and try again, or reload the page.":"Open the roster link your organizer shared to sign up.","err");
   const name=$("name").value.trim(), cls=$("cls").value.trim();
   const cpRaw=$("cp").value.replace(/[,\s.]/g,"");
   if(!name)return say("Enter your character name.","err"),$("name").focus();
   if(!cls)return say("Enter your class.","err"),$("cls").focus();
   if(!/^\d{1,9}$/.test(cpRaw))return say("CP should be a whole number, like 48500.","err"),$("cp").focus();
   if(!chosen)return say("Pick a force.","err");
-  let id=editingId||(($("forOther").checked&&isAdmin)?"p-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6):uid);
-  if(!id)return say("Sign in to claude.ai to sign up.","err");
+  const forOther=$("forOther").checked&&isAdmin;
+  if(!editingId&&!forOther&&!uid){uid=randomId(20);store("rosterMe:"+rosterKey,uid);}
+  const id=editingId||(forOther?randomId(20):uid);
   const prev=rows.get(id)||{};
   const data={name,cls,cp:Number(cpRaw),force:chosen,lead:prev.force===chosen?!!prev.lead:false,updatedAt:new Date().toISOString()};
-  if(!prev.addedBy&&id!==uid&&uid)data.addedBy=uid; else if(prev.addedBy)data.addedBy=prev.addedBy;
   $("submit").disabled=true;
   const ok=await save(id,data,false);
   $("submit").disabled=false;
@@ -388,9 +411,7 @@ function lockForm(text){
   $("formHint").textContent=text;
 }
 
-$("export").onclick=async()=>{
-  const dl=await claude.use("downloads");
-  if(!dl)return say("Export isn't available here.","err");
+$("export").onclick=()=>{
   const esc=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
   const all=[...rows.entries()].map(([id,d])=>({id,...d}));
   const A=assignHealers(all);
@@ -401,38 +422,62 @@ $("export").onclick=async()=>{
       lines.push([f.name,r.name,r.cls,r.cp,r.lead?"Yes":"",to].map(esc).join(","));
     });
   }
-  try{await dl.save({filename:"server-battle-roster.csv",data:lines.join("\n")});}catch{}
+  const url=URL.createObjectURL(new Blob([lines.join("\n")],{type:"text/csv"}));
+  const a=document.createElement("a");a.href=url;a.download="server-battle-roster.csv";document.body.append(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
+
+function linkFor(officer){return location.origin+location.pathname+"#roster="+rosterKey+(officer?"&officer":"");}
+async function copyLink(btn,officer){
+  const link=linkFor(officer);
+  try{await navigator.clipboard.writeText(link);btn.textContent="Copied";}
+  catch{window.prompt("Copy this link:",link);}
+  setTimeout(()=>btn.textContent=officer?"Copy officer link":"Copy player link",1500);
+}
+$("copyPlayer").onclick=e=>copyLink(e.currentTarget,false);
+$("copyOfficer").onclick=e=>copyLink(e.currentTarget,true);
+$("newRoster").onclick=()=>{location.hash="roster="+randomId(20)+"&officer";location.reload();};
 
 render();
 (async()=>{
-  if(!window.claude?.use){
-    const n=$("notice");n.textContent="This copy of the roster can't save signups. Sign up on the live page: ";
-    const a=document.createElement("a");a.href=LIVE_URL;a.textContent=LIVE_URL;a.style.color="var(--accent)";n.append(a);
-    lockForm("Sign-ups don't save on this copy. Use the live sign-up page linked below.");
-    return;
+  const h=readHash();
+  rosterKey=h.key;isAdmin=h.officer;
+  const cfg=window.FIREBASE_CONFIG;
+  if(!cfg||!cfg.projectId){
+    $("notice").textContent="The database isn't set up yet. Add the Firebase settings to config.js.";
+    lockForm("Sign-ups open once the database is set up.");return;
   }
-  const [d,u]=await Promise.all([claude.use("db"),claude.use("user")]);
-  db=d;
-  if(!db){
-    $("notice").textContent="Sign in to claude.ai to see the roster and join a force.";
-    lockForm("Sign in to claude.ai to sign up.");return;
+  if(!rosterKey){
+    $("notice").textContent="Open the roster link your organizer shared to see the formation and sign up.";
+    $("newRoster").hidden=false;
+    lockForm("You need the roster link from your organizer to sign up.");return;
   }
-  if(u){
-    uid=await u.id();
-    isAdmin=await u.canEdit();
-    const w=await u.can("data.write");
-    if(w===false&&!isAdmin){canWrite=false;lockForm("You can view the roster, but your access to this page doesn't allow signing up. Ask the organizer for Contributor access.");}
-  }
-  if(!uid&&!isAdmin){canWrite=false;lockForm("Sign in to claude.ai to sign up.");}
+  uid=store("rosterMe:"+rosterKey)||null;
   $("officerWrap").hidden=!isAdmin;
-  if(isAdmin)$("formHint").textContent+=" As an officer you can also add players who aren't on claude.ai, edit any entry, and mark force leaders.";
+  $("copyPlayer").hidden=!isAdmin;$("copyOfficer").hidden=!isAdmin;
+  if(isAdmin)$("formHint").textContent+=" Officer tools are on: you can add players, edit any entry and mark force leaders.";
+  try{
+    const base="https://www.gstatic.com/firebasejs/10.12.2/";
+    const app=await import(base+"firebase-app.js");
+    fs=await import(base+"firebase-firestore.js");
+    db=fs.getFirestore(app.initializeApp(cfg));
+  }catch(e){
+    $("notice").textContent="Couldn't reach the database. Check your connection and reload the page.";
+    lockForm("Sign-ups are unavailable until the page can reach the database.");return;
+  }
   let first=true;
-  db.collection("signups").onSnapshot(snap=>{
-    rows=new Map(snap.docs.filter(x=>x.exists).map(x=>[x.id,x.data()]));
+  fs.onSnapshot(signupsCol(),snap=>{
+    rows=new Map(snap.docs.map(x=>[x.id,x.data()]));
     $("notice").hidden=true;
     render();
     if(first){first=false;if(uid&&rows.get(uid)&&!editingId)fillFrom(rows.get(uid));syncOwn();}
-  },err=>{$("notice").hidden=false;$("notice").textContent="The roster stopped updating. Reload the page to reconnect.";});
+  },err=>{
+    $("notice").hidden=false;
+    $("notice").textContent=err?.code==="permission-denied"
+      ?"This roster link isn't valid, or the database rules haven't been updated yet."
+      :"The roster stopped updating. Reload the page to reconnect.";
+  });
 })();
 </script>
+</body>
+</html>

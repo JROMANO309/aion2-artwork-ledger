@@ -11,6 +11,21 @@ service cloud.firestore {
         && request.resource.data.owned is map
         && request.resource.data.owned.size() <= 100;
     }
+    // Battle roster: anyone with the roster link (#roster=...) can sign up, edit and remove entries.
+    match /rosters/{rosterKey}/signups/{signupId} {
+      allow get, list, delete: if rosterKey.size() >= 16;
+      allow create, update: if rosterKey.size() >= 16
+        && signupId.size() <= 40
+        && request.resource.data.keys().hasOnly(['name', 'cls', 'cp', 'force', 'lead', 'updatedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 40
+        && request.resource.data.cls is string && request.resource.data.cls.size() <= 30
+        && request.resource.data.cp is int
+        && request.resource.data.cp >= 0 && request.resource.data.cp <= 999999999
+        && request.resource.data.force in ['frontline', 'healers', 'killzone', 'peelers', 'divers']
+        && request.resource.data.lead is bool
+        && request.resource.data.updatedAt is string && request.resource.data.updatedAt.size() <= 40;
+    }
     match /{document=**} {
       allow read, write: if false;
     }
