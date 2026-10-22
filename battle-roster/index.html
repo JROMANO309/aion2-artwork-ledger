@@ -1,0 +1,349 @@
+<title>Server Battle Roster</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sign-up console on top, five force columns below in formation order. Single dark look, matching the battle plan. */
+:root{
+  color-scheme:dark;
+  --bg:#0a1220;
+  --panel:#101b2e;
+  --panel-2:#16243b;
+  --line:#24375a;
+  --fg:#e3ebf7;
+  --muted:#8fa1bd;
+  --accent:#5fb4ff;
+  --danger:#ff5c6c;
+  --gold:#ffcc4d;
+  --f-frontline:#3d8bff;
+  --f-healers:#4cd964;
+  --f-killzone:#ff4757;
+  --f-peelers:#ffa62b;
+  --f-divers:#a66bff;
+  --display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;
+  background-image:radial-gradient(1200px 500px at 50% -200px,#16305a 0%,transparent 70%)}
+.wrap{max-width:1400px;margin:0 auto;padding-block:28px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:24px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:18px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.5vw,44px);letter-spacing:.04em;text-transform:uppercase;margin:0;line-height:1;text-wrap:balance}
+.sub{font-family:var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-size:13px;margin-top:8px}
+.totals{display:flex;gap:22px;font-variant-numeric:tabular-nums}
+.totals div{display:flex;flex-direction:column;align-items:flex-end}
+.totals b{font-family:var(--display);font-size:24px;font-weight:600}
+.totals span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* sign-up console */
+.console{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.console h2{font-family:var(--display);font-size:18px;letter-spacing:.1em;text-transform:uppercase;margin:0;font-weight:600}
+.console .hint{color:var(--muted);font-size:13px;margin:2px 0 0}
+.fields{display:grid;grid-template-columns:2fr 1.4fr 1fr;gap:12px}
+label{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:var(--display);font-weight:600}
+input{font:inherit;font-size:15px;letter-spacing:normal;text-transform:none;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%;min-width:0}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input#cp{font-variant-numeric:tabular-nums}
+.picker{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.pick{font:inherit;cursor:pointer;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:10px 8px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;transition:border-color .15s,background .15s}
+.pick .nm{font-family:var(--display);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:14px;display:flex;align-items:center;gap:8px}
+.pick .nm i{width:10px;height:10px;border-radius:2px;background:var(--fc);display:inline-block;flex:none}
+.pick small{color:var(--muted);font-size:12px}
+.pick:hover{border-color:var(--fc)}
+.pick[aria-pressed="true"]{border-color:var(--fc);background:color-mix(in srgb,var(--fc) 16%,var(--bg));box-shadow:inset 0 0 0 1px var(--fc)}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.btn{font-family:var(--display);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:14px;border-radius:6px;padding:10px 18px;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--fg)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06101f}
+.btn.ghost{background:transparent}
+.btn.warn{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 50%,var(--line));background:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.msg{font-size:13px;color:var(--muted)}
+.msg.err{color:var(--danger)}
+.msg.ok{color:var(--f-healers)}
+.officer{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);text-transform:none;letter-spacing:normal;font-family:var(--body);font-weight:400;flex-direction:row}
+.officer input{width:auto}
+
+/* forces */
+.board-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.board-head h2{font-family:var(--display);font-size:18px;letter-spacing:.1em;text-transform:uppercase;margin:0;font-weight:600}
+.forces{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.force{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--fc);border-radius:8px;display:flex;flex-direction:column;min-width:0}
+.fh{padding:14px 14px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.fh .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.fh h3{margin:0;font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.08em;text-transform:uppercase;color:var(--fc)}
+.fh .count{font-family:var(--display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.fh .job{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-family:var(--display)}
+.stats{display:flex;gap:16px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--fg);font-weight:600}
+ol{list-style:none;margin:0;padding:6px;display:flex;flex-direction:column;gap:2px}
+li.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;padding:8px;border-radius:6px}
+li.row:hover{background:var(--panel-2)}
+li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:inset 2px 0 0 var(--fc)}
+.pn{font-weight:600;overflow-wrap:anywhere;display:flex;align-items:center;gap:6px}
+.pn .star{color:var(--gold);font-size:12px;font-family:var(--display);letter-spacing:.08em}
+.pc{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.cp{font-variant-numeric:tabular-nums;font-family:var(--display);font-weight:600;text-align:right;align-self:center;grid-row:1 / span 2;grid-column:2}
+.rowtools{grid-column:1 / -1;display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.mini{font:inherit;font-size:11.5px;padding:3px 8px;border-radius:4px;background:transparent;color:var(--muted);border:1px solid var(--line);cursor:pointer}
+.mini:hover{color:var(--fg);border-color:var(--muted)}
+.mini.danger{color:var(--danger)}
+.empty{padding:18px 14px;color:var(--muted);font-size:13px}
+.notice{padding:12px 14px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:14px}
+
+@media (max-width:1100px){.forces{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){
+  .forces{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fields{grid-template-columns:1fr 1fr}
+  .fields label:first-child{grid-column:1 / -1}
+  .picker{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:480px){
+  .forces{grid-template-columns:1fr}
+  .totals{gap:16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Server Battle Roster</h1>
+      <div class="sub">One server · One formation · One goal</div>
+    </div>
+    <div class="totals" aria-live="polite">
+      <div><b id="tCount">0</b><span>Signed up</span></div>
+      <div><b id="tCp">0</b><span>Total CP</span></div>
+      <div><b id="tAvg">–</b><span>Avg CP</span></div>
+    </div>
+  </header>
+
+  <section class="console" id="console">
+    <div>
+      <h2 id="formTitle">Join a force</h2>
+      <p class="hint" id="formHint">Enter your character, pick where you stand in the formation, and lock it in. You can change it any time before the fight.</p>
+    </div>
+    <form id="form" autocomplete="off" novalidate>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="fields">
+          <label for="name">Character name<input id="name" maxlength="40" required placeholder="e.g. Kaelith"></label>
+          <label for="cls">Class<input id="cls" list="classes" maxlength="30" required placeholder="e.g. Templar"></label>
+          <label for="cp">CP<input id="cp" inputmode="numeric" maxlength="9" required placeholder="e.g. 48500"></label>
+        </div>
+        <datalist id="classes">
+          <option value="Gladiator"><option value="Templar"><option value="Assassin"><option value="Ranger">
+          <option value="Sorcerer"><option value="Spiritmaster"><option value="Cleric"><option value="Chanter">
+        </datalist>
+        <div class="picker" id="picker" role="group" aria-label="Force"></div>
+        <div class="actions">
+          <button class="btn primary" type="submit" id="submit">Sign up</button>
+          <button class="btn warn" type="button" id="withdraw" hidden>Withdraw</button>
+          <button class="btn ghost" type="button" id="cancel" hidden>Cancel edit</button>
+          <label class="officer" id="officerWrap" hidden><input type="checkbox" id="forOther"> Adding someone else</label>
+          <span class="msg" id="msg" role="status"></span>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:12px">
+    <div class="board-head">
+      <h2>Formation</h2>
+      <button class="btn ghost" type="button" id="export" hidden>Export CSV</button>
+    </div>
+    <div class="notice" id="notice">Loading the roster…</div>
+    <div class="forces" id="forces"></div>
+  </section>
+</div>
+
+<script>
+const FORCES=[
+  {id:"frontline",name:"Frontline",job:"Open the path",lead:"Frontline Leader"},
+  {id:"healers",name:"Healers",job:"Sustain the team",lead:"Backline Leader"},
+  {id:"killzone",name:"Killzone",job:"Deal massive damage",lead:"Damage Leader"},
+  {id:"peelers",name:"Peelers",job:"Keep the backline safe",lead:"Backline Leader"},
+  {id:"divers",name:"Divers",job:"Disrupt & eliminate",lead:"Divers Leader"}
+];
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n||0).toLocaleString("en-US");
+let db=null, uid=null, isAdmin=false, canWrite=true;
+let rows=new Map();      // docId -> data
+let chosen=null;         // force id
+let editingId=null;      // doc being edited (null = own)
+let pendingRemove=null;
+
+// force picker
+for(const f of FORCES){
+  const b=document.createElement("button");
+  b.type="button";b.className="pick";b.id="pick-"+f.id;
+  b.style.setProperty("--fc",`var(--f-${f.id})`);
+  b.setAttribute("aria-pressed","false");
+  b.innerHTML=`<span class="nm"><i></i></span><small></small>`;
+  b.querySelector(".nm").append(f.name);
+  b.querySelector("small").textContent=f.job;
+  b.onclick=()=>setForce(f.id);
+  $("picker").append(b);
+}
+function setForce(id){
+  chosen=id;
+  for(const f of FORCES)$("pick-"+f.id).setAttribute("aria-pressed",String(f.id===id));
+}
+function say(t,kind){const m=$("msg");m.textContent=t||"";m.className="msg"+(kind?" "+kind:"");}
+
+function render(){
+  const all=[...rows.entries()].map(([id,d])=>({id,...d}));
+  const total=all.reduce((s,r)=>s+(+r.cp||0),0);
+  $("tCount").textContent=all.length;
+  $("tCp").textContent=fmt(total);
+  $("tAvg").textContent=all.length?fmt(Math.round(total/all.length)):"–";
+  $("export").hidden=!all.length;
+
+  const host=$("forces");host.replaceChildren();
+  for(const f of FORCES){
+    const list=all.filter(r=>r.force===f.id)
+      .sort((a,b)=>(b.lead?1:0)-(a.lead?1:0)||(+b.cp||0)-(+a.cp||0)||String(a.name).localeCompare(b.name));
+    const sum=list.reduce((s,r)=>s+(+r.cp||0),0);
+    const col=document.createElement("div");col.className="force";col.style.setProperty("--fc",`var(--f-${f.id})`);
+    col.innerHTML=`<div class="fh"><div class="t"><h3></h3><span class="count"></span></div><div class="job"></div>
+      <div class="stats"><span>Total <b class="s1"></b></span><span>Avg <b class="s2"></b></span></div></div><ol></ol>`;
+    col.querySelector("h3").textContent=f.name;
+    col.querySelector(".count").textContent=list.length;
+    col.querySelector(".job").textContent=f.job;
+    col.querySelector(".s1").textContent=fmt(sum);
+    col.querySelector(".s2").textContent=list.length?fmt(Math.round(sum/list.length)):"–";
+    const ol=col.querySelector("ol");
+    if(!list.length){const e=document.createElement("li");e.className="empty";e.textContent="No one yet. Be the first to stand here.";ol.append(e);}
+    for(const r of list){
+      const li=document.createElement("li");li.className="row"+(r.id===uid?" mine":"");
+      const pn=document.createElement("div");pn.className="pn";pn.textContent=r.name||"Unnamed";
+      if(r.lead){const s=document.createElement("span");s.className="star";s.textContent="★ LEAD";s.title=f.lead;pn.append(s);}
+      const pc=document.createElement("div");pc.className="pc";pc.textContent=(r.cls||"—")+(r.id===uid?" · you":"");
+      const cp=document.createElement("div");cp.className="cp";cp.textContent=fmt(r.cp);
+      li.append(pn,cp,pc);
+      if(isAdmin){
+        const t=document.createElement("div");t.className="rowtools";
+        const e=mini("Edit",()=>startEdit(r.id));
+        const l=mini(r.lead?"Unmark lead":"Mark lead",()=>save(r.id,{lead:!r.lead},true));
+        const x=mini(pendingRemove===r.id?"Confirm remove":"Remove",()=>{
+          if(pendingRemove===r.id){pendingRemove=null;removeDoc(r.id);}else{pendingRemove=r.id;render();}
+        },true);
+        t.append(e,l,x);li.append(t);
+      }
+      ol.append(li);
+    }
+    host.append(col);
+  }
+  syncOwn();
+}
+function mini(text,fn,danger){const b=document.createElement("button");b.type="button";b.className="mini"+(danger?" danger":"");b.textContent=text;b.onclick=fn;return b;}
+
+function syncOwn(){
+  if(editingId)return;
+  const mine=uid&&rows.get(uid);
+  if($("forOther").checked){$("submit").textContent="Add player";$("withdraw").hidden=true;return;}
+  $("submit").textContent=mine?"Update my signup":"Sign up";
+  $("withdraw").hidden=!mine;
+  $("formTitle").textContent=mine?"Your signup":"Join a force";
+}
+function fillFrom(d){$("name").value=d?.name||"";$("cls").value=d?.cls||"";$("cp").value=d?.cp??"";setForce(d?.force||null);}
+
+function startEdit(id){
+  editingId=id;$("forOther").checked=false;
+  fillFrom(rows.get(id));
+  $("formTitle").textContent="Editing "+(rows.get(id)?.name||"player");
+  $("submit").textContent="Save changes";$("cancel").hidden=false;$("withdraw").hidden=true;
+  $("console").scrollIntoView({behavior:"smooth",block:"start"});$("name").focus();
+}
+function endEdit(){editingId=null;$("cancel").hidden=true;fillFrom(uid&&rows.get(uid));syncOwn();}
+$("cancel").onclick=()=>{endEdit();say("");};
+$("forOther").onchange=()=>{if($("forOther").checked){editingId=null;$("cancel").hidden=true;fillFrom(null);$("formTitle").textContent="Add a player";}else fillFrom(uid&&rows.get(uid));syncOwn();};
+
+async function save(id,data,merge){
+  try{
+    const ref=db.collection("signups").doc(id);
+    if(merge)await ref.update(data);else await ref.set(data);
+    return true;
+  }catch(e){
+    if(e?.code==="invalid_argument"&&!isAdmin){canWrite=false;lockForm("You can view the roster, but your access to this page doesn't allow signing up. Ask the organizer for Contributor access.");}
+    else say(e?.code==="quota_exceeded"?"The roster is full.":"That didn't save. Try again in a moment.","err");
+    return false;
+  }
+}
+async function removeDoc(id){
+  try{await db.collection("signups").doc(id).delete();if(editingId===id)endEdit();say("Removed.","ok");}
+  catch{say("Couldn't remove that entry. Try again.","err");}
+}
+
+$("form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!db||!canWrite)return;
+  const name=$("name").value.trim(), cls=$("cls").value.trim();
+  const cpRaw=$("cp").value.replace(/[,\s.]/g,"");
+  if(!name)return say("Enter your character name.","err"),$("name").focus();
+  if(!cls)return say("Enter your class.","err"),$("cls").focus();
+  if(!/^\d{1,9}$/.test(cpRaw))return say("CP should be a whole number, like 48500.","err"),$("cp").focus();
+  if(!chosen)return say("Pick a force.","err");
+  let id=editingId||(($("forOther").checked&&isAdmin)?"p-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6):uid);
+  if(!id)return say("Sign in to claude.ai to sign up.","err");
+  const prev=rows.get(id)||{};
+  const data={name,cls,cp:Number(cpRaw),force:chosen,lead:prev.force===chosen?!!prev.lead:false,updatedAt:new Date().toISOString()};
+  if(!prev.addedBy&&id!==uid&&uid)data.addedBy=uid; else if(prev.addedBy)data.addedBy=prev.addedBy;
+  $("submit").disabled=true;
+  const ok=await save(id,data,false);
+  $("submit").disabled=false;
+  if(!ok)return;
+  const fname=FORCES.find(f=>f.id===chosen).name;
+  if(editingId){endEdit();say(`Saved ${name}.`,"ok");}
+  else if(id!==uid){fillFrom(null);say(`Added ${name} to ${fname}.`,"ok");}
+  else say(`You're in ${fname}.`,"ok");
+});
+$("withdraw").onclick=async()=>{
+  if($("withdraw").dataset.armed!=="1"){$("withdraw").dataset.armed="1";$("withdraw").textContent="Confirm withdraw";return;}
+  $("withdraw").dataset.armed="";$("withdraw").textContent="Withdraw";
+  await removeDoc(uid);fillFrom(null);syncOwn();say("You've withdrawn.","ok");
+};
+
+function lockForm(text){
+  for(const el of $("form").querySelectorAll("input,button"))el.disabled=true;
+  $("formHint").textContent=text;
+}
+
+$("export").onclick=async()=>{
+  const dl=await claude.use("downloads");
+  if(!dl)return say("Export isn't available here.","err");
+  const esc=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  const lines=[["Force","Name","Class","CP","Leader"].join(",")];
+  for(const f of FORCES){
+    [...rows.values()].filter(r=>r.force===f.id).sort((a,b)=>(+b.cp||0)-(+a.cp||0))
+      .forEach(r=>lines.push([f.name,r.name,r.cls,r.cp,r.lead?"Yes":""].map(esc).join(",")));
+  }
+  try{await dl.save({filename:"server-battle-roster.csv",data:lines.join("\n")});}catch{}
+};
+
+render();
+(async()=>{
+  const [d,u]=await Promise.all([claude.use("db"),claude.use("user")]);
+  db=d;
+  if(!db){
+    $("notice").textContent="Sign in to claude.ai to see the roster and join a force.";
+    lockForm("Sign in to claude.ai to sign up.");return;
+  }
+  if(u){
+    uid=await u.id();
+    isAdmin=await u.canEdit();
+    const w=await u.can("data.write");
+    if(w===false&&!isAdmin){canWrite=false;lockForm("You can view the roster, but your access to this page doesn't allow signing up. Ask the organizer for Contributor access.");}
+  }
+  if(!uid&&!isAdmin){canWrite=false;lockForm("Sign in to claude.ai to sign up.");}
+  $("officerWrap").hidden=!isAdmin;
+  if(isAdmin)$("formHint").textContent+=" As an officer you can also add players who aren't on claude.ai, edit any entry, and mark force leaders.";
+  let first=true;
+  db.collection("signups").onSnapshot(snap=>{
+    rows=new Map(snap.docs.filter(x=>x.exists).map(x=>[x.id,x.data()]));
+    $("notice").hidden=true;
+    render();
+    if(first){first=false;if(uid&&rows.get(uid)&&!editingId)fillFrom(rows.get(uid));syncOwn();}
+  },err=>{$("notice").hidden=false;$("notice").textContent="The roster stopped updating. Reload the page to reconnect.";});
+})();
+</script>
