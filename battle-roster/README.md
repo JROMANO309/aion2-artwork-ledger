@@ -26,13 +26,12 @@ The key is not stored in the repo, so the plain page address shows nothing. Each
 
 Anyone with the player link can add or change entries, and the officer switch hides tools rather than locking them, the same trust model as the party ledger. Export the CSV before a battle if you want a record.
 
-## Healer assignment
+## How the formation is built
 
-Healers sign up to the Healers force and are assigned to the other groups automatically:
+- **Sections:** Frontline, Killzone, Peelers and Divers. Healers sign up to the Healers section and are placed into groups automatically.
+- **Forces:** each section splits into as many forces as it needs. A force holds up to 4 groups of 5 (4 members + 1 healer), so 20 people.
+- **Force leaders:** officers tick Force leader on a player. Each force leader starts their own force, and the strongest leader leads Force 1. A section opens more forces once it passes 16 members per force; those forces show "No force leader yet" until an officer sets one.
+- **Who goes where:** the strongest players fill Force 1 first, and forces are kept even in size. Inside a force, members are snake-drafted into groups so each group's CP is balanced.
+- **Healers:** 1 per group. When there aren't enough, every force's Group 1 is covered before any Group 2, starting with the strongest force. The strongest healers then go to the strongest groups. Extra healers show as Reserve.
 
-- Each group (Frontline, Killzone, Peelers, Divers) needs 1 healer per 4 members, rounded up. A group of 9 needs 3.
-- Groups are ranked by total CP. The strongest healers go to the strongest group first, then down the ranking.
-- When there aren't enough healers, every group gets its first healer before any group gets a second.
-- Healers left over after every group is covered are shown as Reserve.
-
-The assignment updates live as people sign up or change their CP, and the CSV export includes a "Healing for" column.
+Everything updates live as people sign up or change their CP. The CSV export lists every section, force, group and role.

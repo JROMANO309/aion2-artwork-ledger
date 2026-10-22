@@ -73,59 +73,66 @@ input#cp{font-variant-numeric:tabular-nums}
 .officer{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);text-transform:none;letter-spacing:normal;font-family:var(--body);font-weight:400;flex-direction:row}
 .officer input{width:auto}
 
-/* forces */
+/* formation */
 .board-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
 .board-head h2{font-family:var(--display);font-size:18px;letter-spacing:.1em;text-transform:uppercase;margin:0;font-weight:600}
-.forces{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
-.force{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--fc);border-radius:8px;display:flex;flex-direction:column;min-width:0}
-.fh{padding:14px 14px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
-.fh .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.fh h3{margin:0;font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.08em;text-transform:uppercase;color:var(--fc)}
-.fh .count{font-family:var(--display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
-.fh .job{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-family:var(--display)}
-.stats{display:flex;gap:16px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-.stats b{color:var(--fg);font-weight:600}
-ol{list-style:none;margin:0;padding:6px;display:flex;flex-direction:column;gap:2px}
-li.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;padding:8px;border-radius:6px}
-li.row:hover{background:var(--panel-2)}
-li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:inset 2px 0 0 var(--fc)}
-.pn{font-weight:600;overflow-wrap:anywhere;display:flex;align-items:center;gap:6px}
-.pn .star{color:var(--gold);font-size:12px;font-family:var(--display);letter-spacing:.08em}
-.pc{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
-.cp{font-variant-numeric:tabular-nums;font-family:var(--display);font-weight:600;text-align:right;align-self:center;grid-row:1 / span 2;grid-column:2}
-.rowtools{grid-column:1 / -1;display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.mini{font:inherit;font-size:11.5px;padding:3px 8px;border-radius:4px;background:transparent;color:var(--muted);border:1px solid var(--line);cursor:pointer}
-.mini:hover{color:var(--fg);border-color:var(--muted)}
-.mini.danger{color:var(--danger)}
-.empty{padding:18px 14px;color:var(--muted);font-size:13px}
-.heal{margin:8px 6px 0;padding:10px;border:1px solid color-mix(in srgb,var(--f-healers) 35%,var(--line));border-radius:6px;background:color-mix(in srgb,var(--f-healers) 7%,transparent);display:flex;flex-direction:column;gap:6px}
-.heal .ht{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--f-healers);font-weight:600}
-.heal .ht .need{font-variant-numeric:tabular-nums;color:var(--fg)}
-.heal .ht .need.short{color:var(--danger)}
-.heal .hr{display:flex;justify-content:space-between;gap:8px;font-size:13px}
-.heal .hr span:first-child{overflow-wrap:anywhere;min-width:0}
-.heal .hr span:last-child{font-variant-numeric:tabular-nums;font-family:var(--display);font-weight:600;color:var(--muted)}
-.heal .none{font-size:12.5px;color:var(--muted)}
-.tag{display:inline-block;font-family:var(--display);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:3px;border:1px solid var(--tc,var(--line));color:var(--tc,var(--muted));margin-left:6px;white-space:nowrap}
 .coverage{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .coverage b{color:var(--fg)}
 .coverage .bad{color:var(--danger)}
 .notice{padding:12px 14px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:14px}
+#board{display:flex;flex-direction:column;gap:28px}
+.sect{display:flex;flex-direction:column;gap:12px}
+.sh{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;border-bottom:2px solid var(--fc);padding-bottom:8px}
+.sh h3{margin:0;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.08em;text-transform:uppercase;color:var(--fc)}
+.sh .job{font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.sh .meta{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sh .meta b{color:var(--fg);font-weight:600}
+.flist{display:flex;flex-direction:column;gap:12px}
+.fcard{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--fc);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.fhead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.fhead h4{margin:0;font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.lead{font-size:13.5px;display:flex;align-items:center;gap:6px;min-width:0}
+.lead .star{color:var(--gold);font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.1em}
+.lead.none{color:var(--muted)}
+.fhead .stats{margin-left:auto;display:flex;gap:14px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.fhead .stats b{color:var(--fg);font-weight:600}
+.groups{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.grp{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.gt{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+.gt b{color:var(--fg);font-variant-numeric:tabular-nums}
+.m{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;padding:4px 6px;border-radius:4px;font-size:13.5px;align-items:baseline}
+.m .n{overflow-wrap:anywhere;min-width:0}
+.m .n small{color:var(--muted);font-size:12px;margin-left:4px}
+.m .c{font-variant-numeric:tabular-nums;font-family:var(--display);font-weight:600;color:var(--muted)}
+.m.mine{background:color-mix(in srgb,var(--fc) 14%,transparent);box-shadow:inset 2px 0 0 var(--fc)}
+.m .star{color:var(--gold);font-size:11px;margin-right:4px}
+.m.heal{border-top:1px dashed color-mix(in srgb,var(--f-healers) 40%,var(--line));margin-top:2px;padding-top:6px;border-radius:0}
+.m.heal .n{color:var(--f-healers)}
+.m.heal.miss .n{color:var(--danger)}
+.m.open .n{color:var(--muted);font-style:italic}
+button.n{all:unset;cursor:pointer;overflow-wrap:anywhere;min-width:0}
+button.n:hover{text-decoration:underline}
+button.n:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px}
+.pool .m{background:var(--panel);border:1px solid var(--line)}
+.tag{display:inline-block;font-family:var(--display);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:0 6px;border-radius:3px;border:1px solid var(--tc,var(--line));color:var(--tc,var(--muted));margin-left:6px;white-space:nowrap}
+.empty{color:var(--muted);font-size:13px}
+.leadbox{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg);text-transform:none;letter-spacing:normal;font-family:var(--body);font-weight:400;flex-direction:row}
+.leadbox input{width:auto}
 
-@media (max-width:1100px){.forces{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:1000px){.groups{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:760px){
-  .forces{grid-template-columns:repeat(2,minmax(0,1fr))}
   .fields{grid-template-columns:1fr 1fr}
   .fields label:first-child{grid-column:1 / -1}
   .picker{grid-template-columns:repeat(2,1fr)}
+  .sh .meta,.fhead .stats{margin-left:0}
 }
 @media (max-width:480px){
-  .forces{grid-template-columns:1fr}
+  .groups{grid-template-columns:1fr}
   .totals{gap:16px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
-
 </head>
 <body>
 <div class="wrap">
@@ -136,32 +143,34 @@ li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:i
     </div>
     <div class="totals" aria-live="polite">
       <div><b id="tCount">0</b><span>Signed up</span></div>
+      <div><b id="tForces">0</b><span>Forces</span></div>
       <div><b id="tCp">0</b><span>Total CP</span></div>
-      <div><b id="tAvg">–</b><span>Avg CP</span></div>
     </div>
   </header>
 
   <section class="console" id="console">
     <div>
-      <h2 id="formTitle">Join a force</h2>
-      <p class="hint" id="formHint">Enter your character, pick where you stand in the formation, and lock it in. You can change it any time before the fight.</p>
+      <h2 id="formTitle">Join the battle</h2>
+      <p class="hint" id="formHint">Enter your character and pick your section. You'll be placed in a force and a group of 5 automatically, and you can change your entry any time before the fight.</p>
     </div>
     <form id="form" autocomplete="off" novalidate>
       <div style="display:flex;flex-direction:column;gap:14px">
         <div class="fields">
           <label for="name">Character name<input id="name" maxlength="40" required placeholder="e.g. Kaelith"></label>
           <label for="cls">Class<input id="cls" list="classes" maxlength="30" required placeholder="e.g. Templar"></label>
-          <label for="cp">CP<input id="cp" inputmode="numeric" maxlength="9" required placeholder="e.g. 48500"></label>
+          <label for="cp">CP<input id="cp" inputmode="numeric" maxlength="11" required placeholder="e.g. 48500"></label>
         </div>
         <datalist id="classes">
           <option value="Gladiator"><option value="Templar"><option value="Assassin"><option value="Ranger">
           <option value="Sorcerer"><option value="Spiritmaster"><option value="Cleric"><option value="Chanter">
         </datalist>
-        <div class="picker" id="picker" role="group" aria-label="Force"></div>
+        <div class="picker" id="picker" role="group" aria-label="Section"></div>
         <div class="actions">
           <button class="btn primary" type="submit" id="submit">Sign up</button>
           <button class="btn warn" type="button" id="withdraw" hidden>Withdraw</button>
+          <button class="btn warn" type="button" id="removeBtn" hidden>Remove player</button>
           <button class="btn ghost" type="button" id="cancel" hidden>Cancel edit</button>
+          <label class="leadbox" id="leadWrap" hidden><input type="checkbox" id="isLead"> Force leader</label>
           <label class="officer" id="officerWrap" hidden><input type="checkbox" id="forOther"> Adding someone else</label>
           <span class="msg" id="msg" role="status"></span>
         </div>
@@ -176,180 +185,208 @@ li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:i
     </div>
     <div class="coverage" id="coverage" aria-live="polite"></div>
     <div class="notice" id="notice">Loading the roster…</div>
-    <div class="forces" id="forces"></div>
+    <div id="board"></div>
   </section>
 </div>
 
 <script src="../config.js"></script>
 <script>
-const FORCES=[
-  {id:"frontline",name:"Frontline",job:"Open the path",lead:"Frontline Leader"},
-  {id:"healers",name:"Healers",job:"Sustain the team",lead:"Backline Leader"},
-  {id:"killzone",name:"Killzone",job:"Deal massive damage",lead:"Damage Leader"},
-  {id:"peelers",name:"Peelers",job:"Keep the backline safe",lead:"Backline Leader"},
-  {id:"divers",name:"Divers",job:"Disrupt & eliminate",lead:"Divers Leader"}
+const SECTIONS=[
+  {id:"frontline",name:"Frontline",job:"Open the path"},
+  {id:"healers",name:"Healers",job:"Sustain the team"},
+  {id:"killzone",name:"Killzone",job:"Deal massive damage"},
+  {id:"peelers",name:"Peelers",job:"Keep the backline safe"},
+  {id:"divers",name:"Divers",job:"Disrupt & eliminate"}
 ];
+const COMBAT=SECTIONS.filter(s=>s.id!=="healers").map(s=>s.id);
+const GROUPS_PER_FORCE=4, MEMBERS_PER_GROUP=4;            // + 1 healer = groups of 5
+const FORCE_CAP=GROUPS_PER_FORCE*MEMBERS_PER_GROUP;      // 16 members + 4 healers = 20
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString("en-US");
+const sum=list=>list.reduce((s,r)=>s+(+r.cp||0),0);
+const byCp=(a,b)=>(+b.cp||0)-(+a.cp||0)||String(a.name).localeCompare(String(b.name));
+const secName=id=>SECTIONS.find(s=>s.id===id)?.name||id;
 let db=null, uid=null, isAdmin=false;
-let rows=new Map();      // docId -> data
-let chosen=null;         // force id
-let editingId=null;      // doc being edited (null = own)
-let pendingRemove=null;
+let rows=new Map(), chosen=null, editingId=null;
 
-// force picker
-for(const f of FORCES){
+/* ---------- Formation ----------
+ * Each combat section splits into forces of up to 4 groups (16 members).
+ * Every officer-marked force leader starts a force; more forces open when a section passes 16 per force.
+ * Members fill forces strongest-first, so Force 1 is the section's strongest. Forces are kept even in size.
+ * Inside a force, members are snake-drafted into groups of 4 so the groups' CP stays balanced.
+ * Healers: 1 per group. When short, every force's Group 1 is covered before any Group 2, and so on,
+ * strongest force first. The strongest healers then go to the strongest covered groups.
+ */
+function buildFormation(all){
+  const sections={};
+  const allGroups=[];
+  for(const id of COMBAT){
+    const mem=all.filter(r=>r.force===id).sort(byCp);
+    const leaders=mem.filter(r=>r.lead), others=mem.filter(r=>!r.lead);
+    const nF=Math.max(leaders.length,Math.ceil(mem.length/FORCE_CAP));
+    const target=nF?Math.ceil(mem.length/nF):0;
+    const forces=[...Array(nF)].map((_,i)=>({section:id,n:i+1,leader:leaders[i]||null,members:leaders[i]?[leaders[i]]:[]}));
+    let fi=0;
+    for(const r of others){
+      while(forces[fi].members.length>=target||forces[fi].members.length>=FORCE_CAP)fi++;
+      forces[fi].members.push(r);
+    }
+    for(const f of forces){
+      f.members.sort(byCp);
+      const g=Math.max(1,Math.ceil(f.members.length/MEMBERS_PER_GROUP));
+      f.groups=[...Array(g)].map((_,k)=>({force:f,n:k+1,members:[],healer:null}));
+      f.members.forEach((r,i)=>{const round=Math.floor(i/g),pos=i%g;f.groups[round%2?g-1-pos:pos].members.push(r);});
+      f.groups.forEach(gr=>{gr.cp=sum(gr.members);allGroups.push(gr);});
+      f.cp=sum(f.members);
+    }
+    sections[id]={members:mem,forces};
+  }
+  const healers=all.filter(r=>r.force==="healers").sort(byCp);
+  const covered=[...allGroups].sort((a,b)=>a.n-b.n||b.force.cp-a.force.cp||b.cp-a.cp).slice(0,healers.length);
+  covered.sort((a,b)=>b.cp-a.cp);
+  const placed=new Map();
+  covered.forEach((gr,i)=>{gr.healer=healers[i];placed.set(healers[i].id,gr);});
+  return {sections,groups:allGroups,healers,placed,reserve:healers.slice(covered.length)};
+}
+const where=gr=>`${secName(gr.force.section)} F${gr.force.n} G${gr.n}`;
+
+/* ---------- Form ---------- */
+for(const s of SECTIONS){
   const b=document.createElement("button");
-  b.type="button";b.className="pick";b.id="pick-"+f.id;
-  b.style.setProperty("--fc",`var(--f-${f.id})`);
+  b.type="button";b.className="pick";b.id="pick-"+s.id;
+  b.style.setProperty("--fc",`var(--f-${s.id})`);
   b.setAttribute("aria-pressed","false");
   b.innerHTML=`<span class="nm"><i></i></span><small></small>`;
-  b.querySelector(".nm").append(f.name);
-  b.querySelector("small").textContent=f.job;
-  b.onclick=()=>setForce(f.id);
+  b.querySelector(".nm").append(s.name);
+  b.querySelector("small").textContent=s.job;
+  b.onclick=()=>setSection(s.id);
   $("picker").append(b);
 }
-function setForce(id){
+function setSection(id){
   chosen=id;
-  for(const f of FORCES)$("pick-"+f.id).setAttribute("aria-pressed",String(f.id===id));
+  for(const s of SECTIONS)$("pick-"+s.id).setAttribute("aria-pressed",String(s.id===id));
+  $("isLead").disabled=id==="healers";
+  if(id==="healers")$("isLead").checked=false;
 }
 function say(t,kind){const m=$("msg");m.textContent=t||"";m.className="msg"+(kind?" "+kind:"");}
-
-// Healer assignment: each group needs 1 healer per 4 members (rounded up).
-// Groups are ranked by total CP; the strongest healers go to the strongest groups.
-// When there aren't enough healers, slots are handed out one round at a time
-// (every group gets its 1st healer before any group gets its 2nd), strongest group first.
-const MEMBERS_PER_HEALER=4;
-const GROUPS=FORCES.filter(f=>f.id!=="healers").map(f=>f.id);
-const byCp=(a,b)=>(+b.cp||0)-(+a.cp||0)||String(a.name).localeCompare(String(b.name));
-function assignHealers(all){
-  const groups=GROUPS.map(id=>{
-    const m=all.filter(r=>r.force===id);
-    return {id,n:m.length,cp:m.reduce((s,r)=>s+(+r.cp||0),0),need:Math.ceil(m.length/MEMBERS_PER_HEALER),got:0};
-  }).filter(g=>g.n>0).sort((a,b)=>b.cp-a.cp||b.n-a.n);
-  const healers=all.filter(r=>r.force==="healers").sort(byCp);
-  let left=healers.length,progress=true;
-  while(left>0&&progress){
-    progress=false;
-    for(const g of groups){if(left>0&&g.got<g.need){g.got++;left--;progress=true;}}
-  }
-  const byGroup={},need={},rank={},assignedTo=new Map();
-  let i=0;
-  groups.forEach((g,k)=>{
-    byGroup[g.id]=healers.slice(i,i+g.got);
-    byGroup[g.id].forEach(h=>assignedTo.set(h.id,g.id));
-    need[g.id]=g.need;rank[g.id]=k+1;i+=g.got;
-  });
-  const totalNeed=groups.reduce((s,g)=>s+g.need,0);
-  return {byGroup,need,rank,assignedTo,reserve:healers.slice(i),totalNeed,filled:i,healers:healers.length};
-}
-const forceName=id=>FORCES.find(f=>f.id===id)?.name||id;
-
-function render(){
-  const all=[...rows.entries()].map(([id,d])=>({id,...d}));
-  const total=all.reduce((s,r)=>s+(+r.cp||0),0);
-  $("tCount").textContent=all.length;
-  $("tCp").textContent=fmt(total);
-  $("tAvg").textContent=all.length?fmt(Math.round(total/all.length)):"–";
-  $("export").hidden=!all.length;
-
-  const A=assignHealers(all);
-  const cov=$("coverage");cov.replaceChildren();
-  if(all.length){
-    const short=A.totalNeed-A.filled;
-    const a=document.createElement("span");a.innerHTML="Healer slots <b></b>";a.querySelector("b").textContent=`${A.filled} / ${A.totalNeed} filled`;
-    const b=document.createElement("span");
-    if(short>0){b.className="bad";b.textContent=`${short} more healer${short===1?"":"s"} needed`;}
-    else b.textContent=A.reserve.length?`${A.reserve.length} healer${A.reserve.length===1?"":"s"} in reserve`:"Every group covered";
-    const c=document.createElement("span");c.textContent=`1 healer per ${MEMBERS_PER_HEALER} members · strongest healers go to the strongest groups (total CP)`;
-    cov.append(a,b,c);
-  }
-
-  const host=$("forces");host.replaceChildren();
-  for(const f of FORCES){
-    const list=all.filter(r=>r.force===f.id)
-      .sort((a,b)=>(b.lead?1:0)-(a.lead?1:0)||(+b.cp||0)-(+a.cp||0)||String(a.name).localeCompare(b.name));
-    const sum=list.reduce((s,r)=>s+(+r.cp||0),0);
-    const col=document.createElement("div");col.className="force";col.style.setProperty("--fc",`var(--f-${f.id})`);
-    col.innerHTML=`<div class="fh"><div class="t"><h3></h3><span class="count"></span></div><div class="job"></div>
-      <div class="stats"><span>Total <b class="s1"></b></span><span>Avg <b class="s2"></b></span></div></div><ol></ol>`;
-    col.querySelector("h3").textContent=f.name;
-    col.querySelector(".count").textContent=list.length;
-    col.querySelector(".job").textContent=f.job;
-    col.querySelector(".s1").textContent=fmt(sum);
-    col.querySelector(".s2").textContent=list.length?fmt(Math.round(sum/list.length)):"–";
-    const ol=col.querySelector("ol");
-    if(f.id!=="healers"&&list.length){
-      const hs=A.byGroup[f.id]||[],need=A.need[f.id]||0;
-      const box=document.createElement("div");box.className="heal";
-      box.innerHTML=`<div class="ht"><span></span><span class="need"></span></div>`;
-      box.querySelector(".ht span").textContent=`Healers · #${A.rank[f.id]} by CP`;
-      const nd=box.querySelector(".need");nd.textContent=`${hs.length}/${need}`;if(hs.length<need)nd.classList.add("short");
-      if(!hs.length){const n=document.createElement("div");n.className="none";n.textContent="No healer available yet";box.append(n);}
-      for(const h of hs){
-        const r=document.createElement("div");r.className="hr";
-        const a=document.createElement("span");a.textContent=(h.name||"Unnamed")+(h.cls?` · ${h.cls}`:"");
-        const b=document.createElement("span");b.textContent=fmt(h.cp);
-        r.append(a,b);box.append(r);
-      }
-      col.insertBefore(box,ol);
-    }
-    if(!list.length){const e=document.createElement("li");e.className="empty";e.textContent="No one yet. Be the first to stand here.";ol.append(e);}
-    for(const r of list){
-      const li=document.createElement("li");li.className="row"+(r.id===uid?" mine":"");
-      const pn=document.createElement("div");pn.className="pn";pn.textContent=r.name||"Unnamed";
-      if(r.lead){const s=document.createElement("span");s.className="star";s.textContent="★ LEAD";s.title=f.lead;pn.append(s);}
-      const pc=document.createElement("div");pc.className="pc";pc.textContent=(r.cls||"—")+(r.id===uid?" · you":"");
-      if(f.id==="healers"){
-        const to=A.assignedTo.get(r.id);
-        const t=document.createElement("span");t.className="tag";
-        if(to){t.textContent="→ "+forceName(to);t.style.setProperty("--tc",`var(--f-${to})`);}
-        else t.textContent="Reserve";
-        pc.append(t);
-      }
-      const cp=document.createElement("div");cp.className="cp";cp.textContent=fmt(r.cp);
-      li.append(pn,cp,pc);
-      if(isAdmin){
-        const t=document.createElement("div");t.className="rowtools";
-        const e=mini("Edit",()=>startEdit(r.id));
-        const l=mini(r.lead?"Unmark lead":"Mark lead",()=>save(r.id,{lead:!r.lead},true));
-        const x=mini(pendingRemove===r.id?"Confirm remove":"Remove",()=>{
-          if(pendingRemove===r.id){pendingRemove=null;removeDoc(r.id);}else{pendingRemove=r.id;render();}
-        },true);
-        t.append(e,l,x);li.append(t);
-      }
-      ol.append(li);
-    }
-    host.append(col);
-  }
-  syncOwn();
-}
-function mini(text,fn,danger){const b=document.createElement("button");b.type="button";b.className="mini"+(danger?" danger":"");b.textContent=text;b.onclick=fn;return b;}
-
+function fillFrom(d){$("name").value=d?.name||"";$("cls").value=d?.cls||"";$("cp").value=d?.cp??"";$("isLead").checked=!!d?.lead;setSection(d?.force||null);}
 function syncOwn(){
   if(editingId)return;
+  $("leadWrap").hidden=!isAdmin;
+  $("removeBtn").hidden=true;
+  if($("forOther").checked){$("submit").textContent="Add player";$("withdraw").hidden=true;$("formTitle").textContent="Add a player";return;}
   const mine=uid&&rows.get(uid);
-  if($("forOther").checked){$("submit").textContent="Add player";$("withdraw").hidden=true;return;}
   $("submit").textContent=mine?"Update my signup":"Sign up";
   $("withdraw").hidden=!mine;
-  $("formTitle").textContent=mine?"Your signup":"Join a force";
+  $("formTitle").textContent=mine?"Your signup":"Join the battle";
 }
-function fillFrom(d){$("name").value=d?.name||"";$("cls").value=d?.cls||"";$("cp").value=d?.cp??"";setForce(d?.force||null);}
-
 function startEdit(id){
   editingId=id;$("forOther").checked=false;
   fillFrom(rows.get(id));
   $("formTitle").textContent="Editing "+(rows.get(id)?.name||"player");
-  $("submit").textContent="Save changes";$("cancel").hidden=false;$("withdraw").hidden=true;
-  $("console").scrollIntoView({behavior:"smooth",block:"start"});$("name").focus();
+  $("submit").textContent="Save changes";
+  $("cancel").hidden=false;$("withdraw").hidden=true;$("leadWrap").hidden=false;$("removeBtn").hidden=false;
+  $("removeBtn").dataset.armed="";$("removeBtn").textContent="Remove player";
+  $("console").scrollIntoView({behavior:"smooth",block:"start"});$("name").focus({preventScroll:true});
 }
 function endEdit(){editingId=null;$("cancel").hidden=true;fillFrom(uid&&rows.get(uid));syncOwn();}
 $("cancel").onclick=()=>{endEdit();say("");};
-$("forOther").onchange=()=>{if($("forOther").checked){editingId=null;$("cancel").hidden=true;fillFrom(null);$("formTitle").textContent="Add a player";}else fillFrom(uid&&rows.get(uid));syncOwn();};
+$("forOther").onchange=()=>{editingId=null;$("cancel").hidden=true;fillFrom($("forOther").checked?null:uid&&rows.get(uid));syncOwn();};
 
-// ---- Storage: Firestore at rosters/{rosterKey}/signups/{signupId} ----
-// The roster key travels in the link (#roster=...) and is remembered on this device,
-// so it never lives in the public repo. Officer tools show when the link ends in &officer.
+/* ---------- Render ---------- */
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+function nameNode(r,extra){
+  const n=isAdmin?el("button","n"):el("span","n");
+  if(isAdmin){n.type="button";n.title="Edit "+(r.name||"player");n.onclick=()=>startEdit(r.id);}
+  n.append(r.name||"Unnamed");
+  if(r.cls)n.append(el("small",null,r.cls));
+  if(r.id===uid)n.append(el("small",null,"· you"));
+  if(extra)n.append(extra);
+  return n;
+}
+function memberRow(r,cls){
+  const d=el("div","m"+(cls?" "+cls:"")+(r.id===uid?" mine":""));
+  const n=nameNode(r);
+  if(r.lead&&r.force!=="healers")n.prepend(el("span","star","★"));
+  d.append(n,el("span","c",fmt(r.cp)));
+  return d;
+}
+function render(){
+  const all=[...rows.entries()].map(([id,d])=>({id,...d}));
+  const F=buildFormation(all);
+  const nForces=COMBAT.reduce((s,id)=>s+F.sections[id].forces.length,0);
+  $("tCount").textContent=all.length;
+  $("tForces").textContent=nForces;
+  $("tCp").textContent=fmt(sum(all));
+  $("export").hidden=!all.length;
+
+  const cov=$("coverage");cov.replaceChildren();
+  if(all.length){
+    const need=F.groups.length,have=F.placed.size,short=need-have;
+    const a=el("span");a.append("Groups ",el("b",null,need),"  ·  Healers placed ",el("b",null,`${have}/${need}`));
+    const b=el("span",short>0?"bad":null,short>0?`${short} more healer${short===1?"":"s"} needed`:F.reserve.length?`${F.reserve.length} healer${F.reserve.length===1?"":"s"} in reserve`:"Every group has a healer");
+    cov.append(a,b,el("span",null,"Groups of 5: 4 members + 1 healer · up to 4 groups per force"));
+  }
+
+  const board=$("board");board.replaceChildren();
+  for(const s of SECTIONS){
+    const sec=el("section","sect");sec.style.setProperty("--fc",`var(--f-${s.id})`);
+    const sh=el("div","sh");sh.append(el("h3",null,s.name),el("span","job",s.job));
+    const meta=el("span","meta");sh.append(meta);sec.append(sh);
+    if(s.id==="healers"){
+      meta.append(el("b",null,F.healers.length)," healers · ",el("b",null,fmt(sum(F.healers)))," CP");
+      const pool=el("div","pool");
+      if(!F.healers.length)pool.append(el("div","empty","No healers yet. Each group of 5 needs one."));
+      for(const h of F.healers){
+        const gr=F.placed.get(h.id);
+        const t=el("span","tag",gr?"→ "+where(gr):"Reserve");
+        if(gr)t.style.setProperty("--tc",`var(--f-${gr.force.section})`);
+        const d=el("div","m"+(h.id===uid?" mine":""));
+        d.append(nameNode(h,t),el("span","c",fmt(h.cp)));
+        pool.append(d);
+      }
+      sec.append(pool);board.append(sec);continue;
+    }
+    const S=F.sections[s.id];
+    meta.append(el("b",null,S.members.length)," members · ",el("b",null,S.forces.length),` force${S.forces.length===1?"":"s"} · `,el("b",null,fmt(sum(S.members)))," CP");
+    const fl=el("div","flist");
+    if(!S.forces.length)fl.append(el("div","empty","No one yet. Be the first to stand here."));
+    for(const f of S.forces){
+      const fc=el("div","fcard");
+      const fh=el("div","fhead");
+      fh.append(el("h4",null,`${s.name} ${f.n}`));
+      const ld=el("div","lead"+(f.leader?"":" none"));
+      if(f.leader){ld.append(el("span","star","★ Force leader"),f.leader.name||"Unnamed");}
+      else ld.textContent=isAdmin?"No force leader yet. Click a name to set one.":"No force leader yet";
+      const healed=f.groups.filter(g=>g.healer).length;
+      const st=el("div","stats");
+      st.append(el("span",null,""),el("span",null,""),el("span",null,""));
+      st.children[0].append(el("b",null,f.members.length+healed)," / 20");
+      st.children[1].append(el("b",null,f.groups.length)," groups");
+      st.children[2].append(el("b",null,fmt(f.cp+sum(f.groups.filter(g=>g.healer).map(g=>g.healer))))," CP");
+      fh.append(ld,st);fc.append(fh);
+      const gs=el("div","groups");
+      for(const g of f.groups){
+        const gd=el("div","grp");
+        const gt=el("div","gt");gt.append(el("span",null,`Group ${g.n}`),el("b",null,fmt(g.cp+(+g.healer?.cp||0))));
+        gd.append(gt);
+        g.members.forEach(r=>gd.append(memberRow(r)));
+        for(let i=g.members.length;i<MEMBERS_PER_GROUP;i++){const o=el("div","m open");o.append(el("span","n","Open slot"),el("span","c",""));gd.append(o);}
+        if(g.healer){const h=memberRow(g.healer,"heal");h.querySelector(".n").prepend("✚ ");gd.append(h);}
+        else{const h=el("div","m heal miss");h.append(el("span","n","✚ Needs a healer"),el("span","c",""));gd.append(h);}
+        gs.append(gd);
+      }
+      fc.append(gs);fl.append(fc);
+    }
+    sec.append(fl);board.append(sec);
+  }
+  syncOwn();
+}
+
+/* ---------- Storage: Firestore at rosters/{rosterKey}/signups/{signupId} ----------
+ * The roster key travels in the link (#roster=...) and is remembered on this device,
+ * so it never lives in the public repo. Officer tools show when the link ends in &officer.
+ */
 function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
 function readHash(){
   const h=location.hash.slice(1);
@@ -361,20 +398,13 @@ function readHash(){
 function randomId(n){const a="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";const b=new Uint8Array(n);crypto.getRandomValues(b);return [...b].map(x=>a[x%a.length]).join("");}
 let fs=null, rosterKey=null;
 const signupsCol=()=>fs.collection(db,"rosters",rosterKey,"signups");
-
-async function save(id,data,merge){
-  try{
-    const ref=fs.doc(signupsCol(),id);
-    if(merge)await fs.updateDoc(ref,data);else await fs.setDoc(ref,data);
-    return true;
-  }catch(e){
-    say(e?.code==="permission-denied"?"The roster rejected that entry. Check the name, class and CP and try again.":"That didn't save. Check your connection and try again.","err");
-    return false;
-  }
+async function save(id,data){
+  try{await fs.setDoc(fs.doc(signupsCol(),id),data);return true;}
+  catch(e){say(e?.code==="permission-denied"?"The roster rejected that entry. Check the name, class and CP and try again.":"That didn't save. Check your connection and try again.","err");return false;}
 }
 async function removeDoc(id){
-  try{await fs.deleteDoc(fs.doc(signupsCol(),id));if(editingId===id)endEdit();say("Removed.","ok");}
-  catch{say("Couldn't remove that entry. Try again.","err");}
+  try{await fs.deleteDoc(fs.doc(signupsCol(),id));return true;}
+  catch{say("Couldn't remove that entry. Try again.","err");return false;}
 }
 
 $("form").addEventListener("submit",async e=>{
@@ -385,43 +415,48 @@ $("form").addEventListener("submit",async e=>{
   if(!name)return say("Enter your character name.","err"),$("name").focus();
   if(!cls)return say("Enter your class.","err"),$("cls").focus();
   if(!/^\d{1,9}$/.test(cpRaw))return say("CP should be a whole number, like 48500.","err"),$("cp").focus();
-  if(!chosen)return say("Pick a force.","err");
+  if(!chosen)return say("Pick a section.","err");
   const forOther=$("forOther").checked&&isAdmin;
   if(!editingId&&!forOther&&!uid){uid=randomId(20);store("rosterMe:"+rosterKey,uid);}
   const id=editingId||(forOther?randomId(20):uid);
   const prev=rows.get(id)||{};
-  const data={name,cls,cp:Number(cpRaw),force:chosen,lead:prev.force===chosen?!!prev.lead:false,updatedAt:new Date().toISOString()};
+  const lead=chosen!=="healers"&&(isAdmin?$("isLead").checked:(prev.force===chosen&&!!prev.lead));
+  const data={name,cls,cp:Number(cpRaw),force:chosen,lead,updatedAt:new Date().toISOString()};
   $("submit").disabled=true;
-  const ok=await save(id,data,false);
+  const ok=await save(id,data);
   $("submit").disabled=false;
   if(!ok)return;
-  const fname=FORCES.find(f=>f.id===chosen).name;
   if(editingId){endEdit();say(`Saved ${name}.`,"ok");}
-  else if(id!==uid){fillFrom(null);say(`Added ${name} to ${fname}.`,"ok");}
-  else say(`You're in ${fname}.`,"ok");
+  else if(id!==uid){fillFrom(null);say(`Added ${name} to ${secName(chosen)}.`,"ok");}
+  else say(`You're in ${secName(chosen)}.`,"ok");
 });
 $("withdraw").onclick=async()=>{
-  if($("withdraw").dataset.armed!=="1"){$("withdraw").dataset.armed="1";$("withdraw").textContent="Confirm withdraw";return;}
-  $("withdraw").dataset.armed="";$("withdraw").textContent="Withdraw";
-  await removeDoc(uid);fillFrom(null);syncOwn();say("You've withdrawn.","ok");
+  const b=$("withdraw");
+  if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Confirm withdraw";return;}
+  b.dataset.armed="";b.textContent="Withdraw";
+  if(await removeDoc(uid)){fillFrom(null);syncOwn();say("You've withdrawn.","ok");}
 };
-
+$("removeBtn").onclick=async()=>{
+  const b=$("removeBtn");
+  if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Confirm remove";return;}
+  const name=rows.get(editingId)?.name||"Player";
+  if(await removeDoc(editingId)){endEdit();say(`Removed ${name}.`,"ok");}
+};
 function lockForm(text){
-  for(const el of $("form").querySelectorAll("input,button"))el.disabled=true;
+  for(const e of $("form").querySelectorAll("input,button"))e.disabled=true;
   $("formHint").textContent=text;
 }
 
 $("export").onclick=()=>{
   const esc=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
   const all=[...rows.entries()].map(([id,d])=>({id,...d}));
-  const A=assignHealers(all);
-  const lines=[["Force","Name","Class","CP","Leader","Healing for"].join(",")];
-  for(const f of FORCES){
-    all.filter(r=>r.force===f.id).sort(byCp).forEach(r=>{
-      const to=f.id==="healers"?(A.assignedTo.has(r.id)?forceName(A.assignedTo.get(r.id)):"Reserve"):"";
-      lines.push([f.name,r.name,r.cls,r.cp,r.lead?"Yes":"",to].map(esc).join(","));
-    });
+  const F=buildFormation(all);
+  const lines=[["Section","Force","Group","Role","Name","Class","CP"].join(",")];
+  for(const id of COMBAT)for(const f of F.sections[id].forces)for(const g of f.groups){
+    for(const r of g.members)lines.push([secName(id),f.n,g.n,r===f.leader?"Force leader":"Member",r.name,r.cls,r.cp].map(esc).join(","));
+    if(g.healer)lines.push([secName(id),f.n,g.n,"Healer",g.healer.name,g.healer.cls,g.healer.cp].map(esc).join(","));
   }
+  for(const h of F.reserve)lines.push(["Healers","","","Reserve healer",h.name,h.cls,h.cp].map(esc).join(","));
   const url=URL.createObjectURL(new Blob([lines.join("\n")],{type:"text/csv"}));
   const a=document.createElement("a");a.href=url;a.download="server-battle-roster.csv";document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -455,7 +490,8 @@ render();
   uid=store("rosterMe:"+rosterKey)||null;
   $("officerWrap").hidden=!isAdmin;
   $("copyPlayer").hidden=!isAdmin;$("copyOfficer").hidden=!isAdmin;
-  if(isAdmin)$("formHint").textContent+=" Officer tools are on: you can add players, edit any entry and mark force leaders.";
+  if(isAdmin)$("formHint").textContent="Officer tools are on. Add players, click any name in the formation to edit or remove it, and tick Force leader to make someone lead a force. Each force leader starts their own force.";
+  render();
   try{
     const base="https://www.gstatic.com/firebasejs/10.12.2/";
     const app=await import(base+"firebase-app.js");
