@@ -163,12 +163,11 @@ select.mini{width:auto;padding:3px 6px}
     </div>
     <div class="settings">
       <label for="sParty">Party size<input id="sParty" type="number" min="2" max="12" inputmode="numeric"></label>
-      <label for="sPow">Parties in Powerful's<input id="sPow" type="number" min="0" max="50" inputmode="numeric"></label>
       <button class="btn" type="button" id="sSave">Save settings</button>
       <span class="msg" id="sMsg" role="status"></span>
     </div>
     <ul class="rules">
-      <li>Powerful's Force takes the strongest players by CP, filling its party slots — including the strongest Cleric and Chanter for each of its parties.</li>
+      <li>Powerful's Force takes the top 25% of the roster by CP, including the strongest Cleric and Chanter for each of its parties when there are enough.</li>
       <li>Every Templar goes to BBCwielder's Force, which also gets a Cleric and Chanter for each of its parties.</li>
       <li>Everyone else is split evenly between Beso's and Pope's, with Clerics and Chanters spread across them and CP kept balanced.</li>
       <li>Clerics and Chanters are preferred, not required: each party gets one of each when there are enough, and the rest fill in to keep party CP even.</li>
@@ -202,6 +201,7 @@ const FORCES=[
 ];
 const LOCKABLE=["beso","powerful","pope"];   // templar force is filled by class, so it isn't a lock target
 const DEFAULTS={partySize:4,powerfulParties:2};
+const POWERFUL_SHARE=0.25;   // Powerful's Force holds the top 25% of the roster
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString("en-US");
 const forceName=id=>FORCES.find(f=>f.id===id)?.name||id;
@@ -217,7 +217,8 @@ const sumCp=l=>l.reduce((s,r)=>s+(+r.cp||0),0);
 /* ---------- organizer ---------- */
 function organize(all){
   const ps=Math.max(2,+cfg.partySize||DEFAULTS.partySize);
-  const pp=Math.max(0,+cfg.powerfulParties||0);
+  const powerfulSize=Math.round(all.length*POWERFUL_SHARE);
+  const pp=Math.ceil(powerfulSize/ps);   // parties in Powerful's, each offered a Cleric + Chanter
   const F={powerful:[],beso:[],pope:[],templar:[]};
   const pool=[];
   const isTemplar=r=>/templar/i.test(String(r.cls||""));
@@ -230,7 +231,7 @@ function organize(all){
   const tParties=F.templar.length?Math.ceil(F.templar.length/Math.max(1,ps-2)):0;
 
   // Powerful's: strongest players, with a Cleric + Chanter for each of its parties
-  let room=Math.max(0,pp*ps-F.powerful.length);
+  let room=Math.max(0,powerfulSize-F.powerful.length);
   const take=r=>{pool.splice(pool.indexOf(r),1);F.powerful.push(r);room--;};
   for(const rl of ["cleric","chanter"]){
     let need=pp-F.powerful.filter(r=>role(r)===rl).length;
@@ -442,11 +443,10 @@ $("withdraw").onclick=async()=>{
 function lockForm(text){for(const el of $("form").querySelectorAll("input,select,button"))el.disabled=true;$("formHint").textContent=text;}
 
 /* ---------- settings ---------- */
-function showCfg(){$("sParty").value=cfg.partySize;$("sPow").value=cfg.powerfulParties;}
+function showCfg(){$("sParty").value=cfg.partySize;}
 $("sSave").onclick=async()=>{
-  const p=parseInt($("sParty").value,10),w=parseInt($("sPow").value,10);
+  const p=parseInt($("sParty").value,10),w=Math.min(50,Math.max(0,parseInt(cfg.powerfulParties,10)||DEFAULTS.powerfulParties));
   if(!(p>=2&&p<=12))return say("Party size should be 2–12.","err","sMsg");
-  if(!(w>=0&&w<=50))return say("Parties in Powerful's should be 0–50.","err","sMsg");
   try{await fs.setDoc(fs.doc(col("settings"),"config"),{partySize:p,powerfulParties:w});say("Saved.","ok","sMsg");}
   catch{say("Couldn't save settings. Try again.","err","sMsg");}
 };

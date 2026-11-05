@@ -11,13 +11,13 @@ Each force is split into parties. Clerics and Chanters are preferred, not requir
 
 ## How players are placed
 
-- Powerful's Force is filled first, by CP, up to its party slots, including a Cleric and a Chanter for each of its parties.
+- Powerful's Force holds the top 25% of the roster by CP, including a Cleric and a Chanter for each of its parties when there are enough.
 - Every Templar goes to BBCwielder's Force, which also gets a Cleric and a Chanter for each of its parties.
 - Everyone else is split evenly between Beso's and Pope's, with Clerics and Chanters spread across both and total CP kept even.
 - Inside a force, the remaining players fill the parties so party CP stays even.
 - Officers can lock any player to Beso's, Powerful's or Pope's with **Lock to** (a locked Templar stays in that force). Locked players stay put and the sorting works around them.
 
-Officers can change the party size (default 4) and the number of parties in Powerful's Force (default 2) in **Organizer settings**.
+Officers can change the party size (default 4) in **Organizer settings**.
 
 ## Setup
 
