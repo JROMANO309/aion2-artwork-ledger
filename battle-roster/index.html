@@ -1,389 +1,377 @@
-<!doctype html>
-<html lang="en">
-<head>
+<!DOCTYPE html>
+<html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Server Battle Roster</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<title>Aura Legion Battle Roster</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: sign-up console on top, five force columns below in formation order. Single dark look, matching the battle plan. */
 :root{
   color-scheme:dark;
-  --bg:#0a1220;
-  --panel:#101b2e;
-  --panel-2:#16243b;
-  --line:#24375a;
-  --fg:#e3ebf7;
-  --muted:#8fa1bd;
-  --accent:#5fb4ff;
-  --danger:#ff5c6c;
-  --gold:#ffcc4d;
-  --f-frontline:#3d8bff;
-  --f-healers:#4cd964;
-  --f-killzone:#ff4757;
-  --f-peelers:#ffa62b;
-  --f-divers:#a66bff;
+  /* Aura Legion: obsidian night, radiant gold halo, pale celestial light. Brand header, sign-up, then three force columns. */
+  --bg:#0b0d16;--panel:#131624;--panel-2:#1b1f31;--line:#2c3150;
+  --fg:#ece8dc;--muted:#9a9ab3;--accent:#f2c15a;--aura:#ffe3a1;--celestial:#9fd8ff;
+  --danger:#ff5c6c;--ok:#4cd964;
+  --f-beso:#5fa8ff;--f-powerful:#ff8a5c;--f-pope:#b58cff;
+  --r-cleric:#4cd964;--r-chanter:#2ed3c6;
+  --brand:"Cinzel","Trajan Pro",Georgia,serif;
   --display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
 }
 *{box-sizing:border-box}
-html{padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}
-body{margin:0}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;
-  background-image:radial-gradient(1200px 500px at 50% -200px,#16305a 0%,transparent 70%)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;
+  background-image:radial-gradient(900px 420px at 12% -180px,color-mix(in srgb,var(--accent) 22%,transparent) 0%,transparent 70%),radial-gradient(900px 500px at 100% -260px,color-mix(in srgb,var(--celestial) 10%,transparent) 0%,transparent 70%);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .wrap{max-width:1400px;margin:0 auto;padding-block:28px 48px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   display:flex;flex-direction:column;gap:24px}
 header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:18px}
-h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.5vw,44px);letter-spacing:.04em;text-transform:uppercase;margin:0;line-height:1;text-wrap:balance}
-.sub{font-family:var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-size:13px;margin-top:8px}
+.brand{display:flex;align-items:center;gap:18px}
+.emblem{width:72px;height:72px;flex:none;filter:drop-shadow(0 0 14px color-mix(in srgb,var(--accent) 45%,transparent))}
+.eyebrow{font-family:var(--brand);font-weight:800;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-size:13px;margin-bottom:8px}
+h1{font-family:var(--brand);font-weight:700;font-size:clamp(28px,4.5vw,44px);letter-spacing:.06em;text-transform:uppercase;margin:0;line-height:1;text-wrap:balance}
+.sub{font-family:var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--celestial);font-size:13px;margin-top:8px}
 .totals{display:flex;gap:22px;font-variant-numeric:tabular-nums}
 .totals div{display:flex;flex-direction:column;align-items:flex-end}
 .totals b{font-family:var(--display);font-size:24px;font-weight:600}
 .totals span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 
-/* sign-up console */
-.console{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px}
-.console h2{font-family:var(--display);font-size:18px;letter-spacing:.1em;text-transform:uppercase;margin:0;font-weight:600}
-.console .hint{color:var(--muted);font-size:13px;margin:2px 0 0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px}
+h2{font-family:var(--display);font-size:18px;letter-spacing:.1em;text-transform:uppercase;margin:0;font-weight:600}
+.hint{color:var(--muted);font-size:13px;margin:4px 0 0}
 .fields{display:grid;grid-template-columns:2fr 1.4fr 1fr;gap:12px}
 label{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:var(--display);font-weight:600}
-input{font:inherit;font-size:15px;letter-spacing:normal;text-transform:none;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%;min-width:0}
-input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-input#cp{font-variant-numeric:tabular-nums}
-.picker{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.pick{font:inherit;cursor:pointer;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:10px 8px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;transition:border-color .15s,background .15s}
-.pick .nm{font-family:var(--display);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:14px;display:flex;align-items:center;gap:8px}
-.pick .nm i{width:10px;height:10px;border-radius:2px;background:var(--fc);display:inline-block;flex:none}
-.pick small{color:var(--muted);font-size:12px}
-.pick:hover{border-color:var(--fc)}
-.pick[aria-pressed="true"]{border-color:var(--fc);background:color-mix(in srgb,var(--fc) 16%,var(--bg));box-shadow:inset 0 0 0 1px var(--fc)}
+input,select{font:inherit;font-size:15px;letter-spacing:normal;text-transform:none;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#cp{font-variant-numeric:tabular-nums}
 .actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .btn{font-family:var(--display);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:14px;border-radius:6px;padding:10px 18px;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--fg)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#06101f}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#1a1405}
 .btn.ghost{background:transparent}
 .btn.warn{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 50%,var(--line));background:transparent}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .msg{font-size:13px;color:var(--muted)}
-.msg.err{color:var(--danger)}
-.msg.ok{color:var(--f-healers)}
-.officer{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);text-transform:none;letter-spacing:normal;font-family:var(--body);font-weight:400;flex-direction:row}
-.officer input{width:auto}
+.msg.err{color:var(--danger)} .msg.ok{color:var(--ok)}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);text-transform:none;letter-spacing:normal;font-family:var(--body);font-weight:400;flex-direction:row}
+.check input{width:auto}
 
-/* formation */
+.settings{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+.settings label{width:170px}
+.rules{color:var(--muted);font-size:13px;margin:0;padding-left:18px}
+.rules li{margin:2px 0}
+
 .board-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
-.board-head h2{font-family:var(--display);font-size:18px;letter-spacing:.1em;text-transform:uppercase;margin:0;font-weight:600}
 .coverage{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.coverage b{color:var(--fg)}
-.coverage .bad{color:var(--danger)}
+.coverage b{color:var(--fg)} .coverage .bad{color:var(--danger)} .coverage .good{color:var(--ok)}
 .notice{padding:12px 14px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:14px}
-#board{display:flex;flex-direction:column;gap:28px}
-.sect{display:flex;flex-direction:column;gap:12px}
-.sh{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;border-bottom:2px solid var(--fc);padding-bottom:8px}
-.sh h3{margin:0;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.08em;text-transform:uppercase;color:var(--fc)}
-.sh .job{font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.sh .meta{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.sh .meta b{color:var(--fg);font-weight:600}
-.flist{display:flex;flex-direction:column;gap:12px}
-.fcard{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--fc);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.fhead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
-.fhead h4{margin:0;font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-.lead{font-size:13.5px;display:flex;align-items:center;gap:6px;min-width:0}
-.lead .star{color:var(--gold);font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.1em}
-.lead.none{color:var(--muted)}
-.fhead .stats{margin-left:auto;display:flex;gap:14px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.fhead .stats b{color:var(--fg);font-weight:600}
-.groups{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.grp{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:4px;min-width:0}
-.gt{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
-.gt b{color:var(--fg);font-variant-numeric:tabular-nums}
-.m{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;padding:4px 6px;border-radius:4px;font-size:13.5px;align-items:baseline}
-.m .n{overflow-wrap:anywhere;min-width:0}
-.m .n small{color:var(--muted);font-size:12px;margin-left:4px}
-.m .c{font-variant-numeric:tabular-nums;font-family:var(--display);font-weight:600;color:var(--muted)}
-.m.mine{background:color-mix(in srgb,var(--fc) 14%,transparent);box-shadow:inset 2px 0 0 var(--fc)}
-.m .star{color:var(--gold);font-size:11px;margin-right:4px}
-.m.heal{border-top:1px dashed color-mix(in srgb,var(--f-healers) 40%,var(--line));margin-top:2px;padding-top:6px;border-radius:0}
-.m.heal .n{color:var(--f-healers)}
-.m.heal.miss .n{color:var(--danger)}
-.m.open .n{color:var(--muted);font-style:italic}
-button.n{all:unset;cursor:pointer;overflow-wrap:anywhere;min-width:0}
-button.n:hover{text-decoration:underline}
-button.n:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px}
-.pool .m{background:var(--panel);border:1px solid var(--line)}
-.tag{display:inline-block;font-family:var(--display);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:0 6px;border-radius:3px;border:1px solid var(--tc,var(--line));color:var(--tc,var(--muted));margin-left:6px;white-space:nowrap}
-.empty{color:var(--muted);font-size:13px}
-.leadbox{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg);text-transform:none;letter-spacing:normal;font-family:var(--body);font-weight:400;flex-direction:row}
-.leadbox input{width:auto}
 
-@media (max-width:1000px){.groups{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:760px){
-  .fields{grid-template-columns:1fr 1fr}
-  .fields label:first-child{grid-column:1 / -1}
-  .picker{grid-template-columns:repeat(2,1fr)}
-  .sh .meta,.fhead .stats{margin-left:0}
-}
-@media (max-width:480px){
-  .groups{grid-template-columns:1fr}
-  .totals{gap:16px}
-}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.forces{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.force{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--fc);border-radius:8px;display:flex;flex-direction:column;min-width:0}
+.fh{padding:14px 14px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.fh .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.fh h3{margin:0;font-family:var(--brand);font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase;color:var(--fc)}
+.fh .count{font-family:var(--display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.fh .job{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-family:var(--display)}
+.stats{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--fg);font-weight:600}
+.warns{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--danger)}
+.parties{display:flex;flex-direction:column;gap:10px;padding:10px}
+.party{border:1px solid var(--line);border-radius:6px;background:color-mix(in srgb,var(--panel-2) 50%,transparent)}
+.party.short{border-color:color-mix(in srgb,var(--danger) 55%,var(--line))}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.ph .pcp{color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.ph .miss{color:var(--danger);letter-spacing:.04em;text-transform:none;font-family:var(--body);font-weight:500;font-size:12px}
+ol{list-style:none;margin:0;padding:4px;display:flex;flex-direction:column;gap:2px}
+li.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;padding:7px 8px;border-radius:5px}
+li.row:hover{background:var(--panel-2)}
+li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:inset 2px 0 0 var(--fc)}
+.pn{font-weight:600;overflow-wrap:anywhere;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.pc{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.cp{font-variant-numeric:tabular-nums;font-family:var(--display);font-weight:600;text-align:right;align-self:center;grid-row:1 / span 2;grid-column:2}
+.tag{display:inline-block;font-family:var(--display);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:3px;border:1px solid var(--tc,var(--line));color:var(--tc,var(--muted));white-space:nowrap;font-weight:600}
+.rowtools{grid-column:1 / -1;display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.mini{font:inherit;font-size:11.5px;padding:3px 8px;border-radius:4px;background:transparent;color:var(--muted);border:1px solid var(--line);cursor:pointer}
+.mini:hover{color:var(--fg);border-color:var(--muted)}
+.mini.danger{color:var(--danger)}
+select.mini{width:auto;padding:3px 6px}
+.empty{padding:18px 14px;color:var(--muted);font-size:13px}
+
+@media (max-width:1000px){.forces{grid-template-columns:1fr}}
+@media (max-width:640px){.emblem{width:56px;height:56px}.fields{grid-template-columns:1fr 1fr}.fields label:first-child{grid-column:1 / -1}.totals{gap:16px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div>
-      <h1>Server Battle Roster</h1>
-      <div class="sub">One server · One formation · One goal</div>
+    <div class="brand">
+      <svg class="emblem" viewBox="0 0 100 100" aria-hidden="true">
+        <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" style="stop-color:var(--aura)" stop-opacity=".55"/><stop offset="1" style="stop-color:var(--accent)" stop-opacity="0"/></radialGradient></defs>
+        <circle cx="50" cy="50" r="48" fill="url(#glow)"/>
+        <circle cx="50" cy="50" r="40" fill="none" style="stroke:var(--accent)" stroke-width="2"/>
+        <circle cx="50" cy="50" r="33" fill="none" style="stroke:var(--accent)" stroke-width="1" stroke-dasharray="2 4" opacity=".7"/>
+        <path d="M50 14 L56 44 L86 50 L56 56 L50 86 L44 56 L14 50 L44 44 Z" style="fill:var(--aura)"/>
+        <path d="M50 30 L53 47 L70 50 L53 53 L50 70 L47 53 L30 50 L47 47 Z" style="fill:var(--bg)" opacity=".55"/>
+        <circle cx="50" cy="50" r="4" style="fill:var(--aura)"/>
+      </svg>
+      <div>
+        <div class="eyebrow">Aura Legion</div>
+        <h1>Server Battle Roster</h1>
+        <div class="sub">Beso · Powerful · Pope</div>
+      </div>
     </div>
     <div class="totals" aria-live="polite">
       <div><b id="tCount">0</b><span>Signed up</span></div>
-      <div><b id="tForces">0</b><span>Forces</span></div>
       <div><b id="tCp">0</b><span>Total CP</span></div>
+      <div><b id="tAvg">–</b><span>Avg CP</span></div>
     </div>
   </header>
 
-  <section class="console" id="console">
+  <section class="panel" id="console">
     <div>
-      <h2 id="formTitle">Join the battle</h2>
-      <p class="hint" id="formHint">Enter your character and pick your section. You'll be placed in a force and a group of 5 automatically, and you can change your entry any time before the fight.</p>
+      <h2 id="formTitle">Sign up</h2>
+      <p class="hint" id="formHint">Enter your character, class and CP. Forces and parties are organized automatically — you can update your entry any time before the fight.</p>
     </div>
     <form id="form" autocomplete="off" novalidate>
       <div style="display:flex;flex-direction:column;gap:14px">
         <div class="fields">
           <label for="name">Character name<input id="name" maxlength="40" required placeholder="e.g. Kaelith"></label>
-          <label for="cls">Class<input id="cls" list="classes" maxlength="30" required placeholder="e.g. Templar"></label>
+          <label for="cls">Class<select id="cls" required>
+            <option value="">Choose…</option>
+            <option>Cleric</option><option>Chanter</option>
+            <option>Gladiator</option><option>Templar</option><option>Assassin</option>
+            <option>Ranger</option><option>Sorcerer</option><option>Spiritmaster</option>
+          </select></label>
           <label for="cp">CP<input id="cp" inputmode="numeric" maxlength="11" required placeholder="e.g. 48500"></label>
         </div>
-        <datalist id="classes">
-          <option value="Gladiator"><option value="Templar"><option value="Assassin"><option value="Ranger">
-          <option value="Sorcerer"><option value="Spiritmaster"><option value="Cleric"><option value="Chanter">
-        </datalist>
-        <div class="picker" id="picker" role="group" aria-label="Section"></div>
         <div class="actions">
           <button class="btn primary" type="submit" id="submit">Sign up</button>
           <button class="btn warn" type="button" id="withdraw" hidden>Withdraw</button>
-          <button class="btn warn" type="button" id="removeBtn" hidden>Remove player</button>
           <button class="btn ghost" type="button" id="cancel" hidden>Cancel edit</button>
-          <label class="leadbox" id="leadWrap" hidden><input type="checkbox" id="isLead"> Force leader</label>
-          <label class="officer" id="officerWrap" hidden><input type="checkbox" id="forOther"> Adding someone else</label>
+          <label class="check" id="officerWrap" hidden><input type="checkbox" id="forOther"> Adding someone else</label>
           <span class="msg" id="msg" role="status"></span>
         </div>
       </div>
     </form>
   </section>
 
+  <section class="panel" id="settingsPanel" hidden>
+    <div>
+      <h2>Organizer settings</h2>
+      <p class="hint">Only officers see this. Changes re-sort everyone instantly.</p>
+    </div>
+    <div class="settings">
+      <label for="sParty">Party size<input id="sParty" type="number" min="2" max="12" inputmode="numeric"></label>
+      <label for="sPow">Parties in Powerful's<input id="sPow" type="number" min="0" max="50" inputmode="numeric"></label>
+      <button class="btn" type="button" id="sSave">Save settings</button>
+      <span class="msg" id="sMsg" role="status"></span>
+    </div>
+    <ul class="rules">
+      <li>Powerful's Force takes the strongest players by CP, filling its party slots — including the strongest Cleric and Chanter for each of its parties.</li>
+      <li>Everyone else is split evenly between Beso's and Pope's, with Clerics and Chanters spread across both and CP kept balanced.</li>
+      <li>Every party gets one Cleric and one Chanter; the rest fill in to keep party CP even. A red party is missing one.</li>
+      <li>Use “Lock to” on any player to place them in a force by hand; the auto-sort works around locks.</li>
+    </ul>
+  </section>
+
   <section style="display:flex;flex-direction:column;gap:12px">
     <div class="board-head">
-      <h2>Formation</h2>
-      <div class="actions"><button class="btn ghost" type="button" id="copyPlayer" hidden>Copy player link</button><button class="btn ghost" type="button" id="copyOfficer" hidden>Copy officer link</button><button class="btn ghost" type="button" id="newRoster" hidden>Start a new roster</button><button class="btn ghost" type="button" id="export" hidden>Export CSV</button></div>
+      <h2>Forces</h2>
+      <div class="actions">
+        <button class="btn ghost" type="button" id="copyPlayer" hidden>Copy player link</button>
+        <button class="btn ghost" type="button" id="copyOfficer" hidden>Copy officer link</button>
+        <button class="btn ghost" type="button" id="export" hidden>Export CSV</button>
+      </div>
     </div>
     <div class="coverage" id="coverage" aria-live="polite"></div>
     <div class="notice" id="notice">Loading the roster…</div>
-    <div id="board"></div>
+    <div><button class="btn primary" type="button" id="newRoster" hidden>Start a new roster</button></div>
+    <div class="forces" id="forces"></div>
   </section>
 </div>
 
 <script src="../config.js"></script>
 <script>
-const SECTIONS=[
-  {id:"frontline",name:"Frontline",job:"Open the path"},
-  {id:"healers",name:"Healers",job:"Sustain the team"},
-  {id:"killzone",name:"Killzone",job:"Deal massive damage"},
-  {id:"peelers",name:"Peelers",job:"Keep the backline safe"},
-  {id:"divers",name:"Divers",job:"Disrupt & eliminate"}
+const FORCES=[
+  {id:"beso",name:"Beso's Force",job:"Led by Beso"},
+  {id:"powerful",name:"Powerful's Force",job:"Led by Powerful"},
+  {id:"pope",name:"Pope's Force",job:"Led by Pope"}
 ];
-const COMBAT=SECTIONS.filter(s=>s.id!=="healers").map(s=>s.id);
-const GROUPS_PER_FORCE=4, MEMBERS_PER_GROUP=4;            // + 1 healer = groups of 5
-const FORCE_CAP=GROUPS_PER_FORCE*MEMBERS_PER_GROUP;      // 16 members + 4 healers = 20
+const DEFAULTS={partySize:4,powerfulParties:2};
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString("en-US");
-const sum=list=>list.reduce((s,r)=>s+(+r.cp||0),0);
+const forceName=id=>FORCES.find(f=>f.id===id)?.name||id;
+let db=null,fs=null,rosterKey=null,uid=null,isAdmin=false;
+let rows=new Map(),cfg={...DEFAULTS};
+let editingId=null,pendingRemove=null;
+
+function say(t,kind,el="msg"){const m=$(el);m.textContent=t||"";m.className="msg"+(kind?" "+kind:"");}
+const role=r=>{const c=String(r.cls||"").toLowerCase();return c.includes("cleric")?"cleric":c.includes("chanter")?"chanter":"dps";};
 const byCp=(a,b)=>(+b.cp||0)-(+a.cp||0)||String(a.name).localeCompare(String(b.name));
-const secName=id=>SECTIONS.find(s=>s.id===id)?.name||id;
-let db=null, uid=null, isAdmin=false;
-let rows=new Map(), chosen=null, editingId=null;
+const sumCp=l=>l.reduce((s,r)=>s+(+r.cp||0),0);
 
-/* ---------- Formation ----------
- * Each combat section splits into forces of up to 4 groups (16 members).
- * Every officer-marked force leader starts a force; more forces open when a section passes 16 per force.
- * Members fill forces strongest-first, so Force 1 is the section's strongest. Forces are kept even in size.
- * Inside a force, members are snake-drafted into groups of 4 so the groups' CP stays balanced.
- * Healers: 1 per group. When short, every force's Group 1 is covered before any Group 2, and so on,
- * strongest force first. The strongest healers then go to the strongest covered groups.
- */
-function buildFormation(all){
-  const sections={};
-  const allGroups=[];
-  for(const id of COMBAT){
-    const mem=all.filter(r=>r.force===id).sort(byCp);
-    const leaders=mem.filter(r=>r.lead), others=mem.filter(r=>!r.lead);
-    const nF=Math.max(leaders.length,Math.ceil(mem.length/FORCE_CAP));
-    const target=nF?Math.ceil(mem.length/nF):0;
-    const forces=[...Array(nF)].map((_,i)=>({section:id,n:i+1,leader:leaders[i]||null,members:leaders[i]?[leaders[i]]:[]}));
-    let fi=0;
-    for(const r of others){
-      while(forces[fi].members.length>=target||forces[fi].members.length>=FORCE_CAP)fi++;
-      forces[fi].members.push(r);
-    }
-    for(const f of forces){
-      f.members.sort(byCp);
-      const g=Math.max(1,Math.ceil(f.members.length/MEMBERS_PER_GROUP));
-      f.groups=[...Array(g)].map((_,k)=>({force:f,n:k+1,members:[],healer:null}));
-      f.members.forEach((r,i)=>{const round=Math.floor(i/g),pos=i%g;f.groups[round%2?g-1-pos:pos].members.push(r);});
-      f.groups.forEach(gr=>{gr.cp=sum(gr.members);allGroups.push(gr);});
-      f.cp=sum(f.members);
-    }
-    sections[id]={members:mem,forces};
+/* ---------- organizer ---------- */
+function organize(all){
+  const ps=Math.max(2,+cfg.partySize||DEFAULTS.partySize);
+  const pp=Math.max(0,+cfg.powerfulParties||0);
+  const F={powerful:[],beso:[],pope:[]};
+  const pool=[];
+  for(const r of [...all].sort(byCp)){(F[r.pin]?F[r.pin]:pool).push(r);}
+
+  // Powerful's: strongest players, with a Cleric + Chanter for each of its parties
+  let room=Math.max(0,pp*ps-F.powerful.length);
+  const take=r=>{pool.splice(pool.indexOf(r),1);F.powerful.push(r);room--;};
+  for(const rl of ["cleric","chanter"]){
+    let need=pp-F.powerful.filter(r=>role(r)===rl).length;
+    for(const r of pool.filter(r=>role(r)===rl)){if(need<=0||room<=0)break;take(r);need--;}
   }
-  const healers=all.filter(r=>r.force==="healers").sort(byCp);
-  const covered=[...allGroups].sort((a,b)=>a.n-b.n||b.force.cp-a.force.cp||b.cp-a.cp).slice(0,healers.length);
-  covered.sort((a,b)=>b.cp-a.cp);
-  const placed=new Map();
-  covered.forEach((gr,i)=>{gr.healer=healers[i];placed.set(healers[i].id,gr);});
-  return {sections,groups:allGroups,healers,placed,reserve:healers.slice(covered.length)};
-}
-const where=gr=>`${secName(gr.force.section)} F${gr.force.n} G${gr.n}`;
+  for(const r of pool.filter(r=>role(r)==="dps")){if(room<=0)break;take(r);}
+  for(const r of [...pool]){if(room<=0)break;take(r);}
 
-/* ---------- Form ---------- */
-for(const s of SECTIONS){
-  const b=document.createElement("button");
-  b.type="button";b.className="pick";b.id="pick-"+s.id;
-  b.style.setProperty("--fc",`var(--f-${s.id})`);
-  b.setAttribute("aria-pressed","false");
-  b.innerHTML=`<span class="nm"><i></i></span><small></small>`;
-  b.querySelector(".nm").append(s.name);
-  b.querySelector("small").textContent=s.job;
-  b.onclick=()=>setSection(s.id);
-  $("picker").append(b);
-}
-function setSection(id){
-  chosen=id;
-  for(const s of SECTIONS)$("pick-"+s.id).setAttribute("aria-pressed",String(s.id===id));
-  $("isLead").disabled=id==="healers";
-  if(id==="healers")$("isLead").checked=false;
-}
-function say(t,kind){const m=$("msg");m.textContent=t||"";m.className="msg"+(kind?" "+kind:"");}
-function fillFrom(d){$("name").value=d?.name||"";$("cls").value=d?.cls||"";$("cp").value=d?.cp??"";$("isLead").checked=!!d?.lead;setSection(d?.force||null);}
-function syncOwn(){
-  if(editingId)return;
-  $("leadWrap").hidden=!isAdmin;
-  $("removeBtn").hidden=true;
-  if($("forOther").checked){$("submit").textContent="Add player";$("withdraw").hidden=true;$("formTitle").textContent="Add a player";return;}
-  const mine=uid&&rows.get(uid);
-  $("submit").textContent=mine?"Update my signup":"Sign up";
-  $("withdraw").hidden=!mine;
-  $("formTitle").textContent=mine?"Your signup":"Join the battle";
-}
-function startEdit(id){
-  editingId=id;$("forOther").checked=false;
-  fillFrom(rows.get(id));
-  $("formTitle").textContent="Editing "+(rows.get(id)?.name||"player");
-  $("submit").textContent="Save changes";
-  $("cancel").hidden=false;$("withdraw").hidden=true;$("leadWrap").hidden=false;$("removeBtn").hidden=false;
-  $("removeBtn").dataset.armed="";$("removeBtn").textContent="Remove player";
-  $("console").scrollIntoView({behavior:"smooth",block:"start"});$("name").focus({preventScroll:true});
-}
-function endEdit(){editingId=null;$("cancel").hidden=true;fillFrom(uid&&rows.get(uid));syncOwn();}
-$("cancel").onclick=()=>{endEdit();say("");};
-$("forOther").onchange=()=>{editingId=null;$("cancel").hidden=true;fillFrom($("forOther").checked?null:uid&&rows.get(uid));syncOwn();};
+  // Beso's & Pope's: even split, supports spread, CP balanced
+  const pick=(rl)=>{
+    const [a,b]=[F.beso,F.pope];
+    const ca=rl?a.filter(r=>role(r)===rl).length:0, cb=rl?b.filter(r=>role(r)===rl).length:0;
+    if(ca!==cb)return ca<cb?a:b;
+    if(a.length!==b.length)return a.length<b.length?a:b;
+    return sumCp(a)<=sumCp(b)?a:b;
+  };
+  for(const rl of ["cleric","chanter"])for(const r of pool.filter(r=>role(r)===rl))pick(rl).push(r);
+  for(const r of pool.filter(r=>role(r)==="dps"))pick(null).push(r);
 
-/* ---------- Render ---------- */
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
-function nameNode(r,extra){
-  const n=isAdmin?el("button","n"):el("span","n");
-  if(isAdmin){n.type="button";n.title="Edit "+(r.name||"player");n.onclick=()=>startEdit(r.id);}
-  n.append(r.name||"Unnamed");
-  if(r.cls)n.append(el("small",null,r.cls));
-  if(r.id===uid)n.append(el("small",null,"· you"));
-  if(extra)n.append(extra);
-  return n;
+  const out={};
+  for(const f of FORCES)out[f.id]=buildParties(F[f.id],ps,f.id==="powerful"?pp:0);
+  return out;
 }
-function memberRow(r,cls){
-  const d=el("div","m"+(cls?" "+cls:"")+(r.id===uid?" mine":""));
-  const n=nameNode(r);
-  if(r.lead&&r.force!=="healers")n.prepend(el("span","star","★"));
-  d.append(n,el("span","c",fmt(r.cp)));
-  return d;
+function buildParties(members,ps,minParties){
+  const sorted=[...members].sort(byCp);
+  const n=Math.ceil(members.length/ps);
+  const parties=Array.from({length:n},()=>[]);
+  const cpOf=p=>sumCp(p);
+  const clerics=sorted.filter(r=>role(r)==="cleric"),chanters=sorted.filter(r=>role(r)==="chanter");
+  const rest=sorted.filter(r=>role(r)==="dps");
+  clerics.forEach((r,i)=>i<n?parties[i].push(r):rest.push(r));
+  // strongest chanter goes to the party with the weakest cleric
+  const order=parties.map((p,i)=>i).sort((a,b)=>cpOf(parties[a])-cpOf(parties[b]));
+  chanters.forEach((r,i)=>i<n?parties[order[i]].push(r):rest.push(r));
+  rest.sort(byCp);
+  for(const r of rest){
+    let best=null;
+    for(const p of parties)if(p.length<ps&&(!best||cpOf(p)<cpOf(best)))best=p;
+    (best||parties[parties.length-1]).push(r);
+  }
+  return parties.map(p=>{
+    const m=p.sort((a,b)=>({cleric:0,chanter:1,dps:2}[role(a)]-{cleric:0,chanter:1,dps:2}[role(b)])||byCp(a,b));
+    return {members:m,cleric:m.some(r=>role(r)==="cleric"),chanter:m.some(r=>role(r)==="chanter")};
+  });
 }
+
+/* ---------- render ---------- */
 function render(){
   const all=[...rows.entries()].map(([id,d])=>({id,...d}));
-  const F=buildFormation(all);
-  const nForces=COMBAT.reduce((s,id)=>s+F.sections[id].forces.length,0);
+  const total=sumCp(all);
   $("tCount").textContent=all.length;
-  $("tForces").textContent=nForces;
-  $("tCp").textContent=fmt(sum(all));
+  $("tCp").textContent=fmt(total);
+  $("tAvg").textContent=all.length?fmt(Math.round(total/all.length)):"–";
   $("export").hidden=!all.length;
 
+  const O=organize(all);
   const cov=$("coverage");cov.replaceChildren();
   if(all.length){
-    const need=F.groups.length,have=F.placed.size,short=need-have;
-    const a=el("span");a.append("Groups ",el("b",null,need),"  ·  Healers placed ",el("b",null,`${have}/${need}`));
-    const b=el("span",short>0?"bad":null,short>0?`${short} more healer${short===1?"":"s"} needed`:F.reserve.length?`${F.reserve.length} healer${F.reserve.length===1?"":"s"} in reserve`:"Every group has a healer");
-    cov.append(a,b,el("span",null,"Groups of 5: 4 members + 1 healer · up to 4 groups per force"));
+    const ps=O.powerful.concat(O.beso,O.pope);
+    const nC=all.filter(r=>role(r)==="cleric").length,nH=all.filter(r=>role(r)==="chanter").length;
+    const missC=ps.filter(p=>!p.cleric).length,missH=ps.filter(p=>!p.chanter).length;
+    const add=(html,cls)=>{const s=document.createElement("span");if(cls)s.className=cls;s.innerHTML=html;cov.append(s);};
+    add(`Parties <b>${ps.length}</b> of up to ${cfg.partySize}`);
+    add(`Clerics <b>${nC}</b> · Chanters <b>${nH}</b>`);
+    if(missC||missH){
+      const bits=[];if(missC)bits.push(`${missC} more Cleric${missC===1?"":"s"}`);if(missH)bits.push(`${missH} more Chanter${missH===1?"":"s"}`);
+      add("Need "+bits.join(" and "),"bad");
+    } else add("Every party has a Cleric and a Chanter","good");
   }
 
-  const board=$("board");board.replaceChildren();
-  for(const s of SECTIONS){
-    const sec=el("section","sect");sec.style.setProperty("--fc",`var(--f-${s.id})`);
-    const sh=el("div","sh");sh.append(el("h3",null,s.name),el("span","job",s.job));
-    const meta=el("span","meta");sh.append(meta);sec.append(sh);
-    if(s.id==="healers"){
-      meta.append(el("b",null,F.healers.length)," healers · ",el("b",null,fmt(sum(F.healers)))," CP");
-      const pool=el("div","pool");
-      if(!F.healers.length)pool.append(el("div","empty","No healers yet. Each group of 5 needs one."));
-      for(const h of F.healers){
-        const gr=F.placed.get(h.id);
-        const t=el("span","tag",gr?"→ "+where(gr):"Reserve");
-        if(gr)t.style.setProperty("--tc",`var(--f-${gr.force.section})`);
-        const d=el("div","m"+(h.id===uid?" mine":""));
-        d.append(nameNode(h,t),el("span","c",fmt(h.cp)));
-        pool.append(d);
-      }
-      sec.append(pool);board.append(sec);continue;
-    }
-    const S=F.sections[s.id];
-    meta.append(el("b",null,S.members.length)," members · ",el("b",null,S.forces.length),` force${S.forces.length===1?"":"s"} · `,el("b",null,fmt(sum(S.members)))," CP");
-    const fl=el("div","flist");
-    if(!S.forces.length)fl.append(el("div","empty","No one yet. Be the first to stand here."));
-    for(const f of S.forces){
-      const fc=el("div","fcard");
-      const fh=el("div","fhead");
-      fh.append(el("h4",null,`${s.name} ${f.n}`));
-      const ld=el("div","lead"+(f.leader?"":" none"));
-      if(f.leader){ld.append(el("span","star","★ Force leader"),f.leader.name||"Unnamed");}
-      else ld.textContent=isAdmin?"No force leader yet. Click a name to set one.":"No force leader yet";
-      const healed=f.groups.filter(g=>g.healer).length;
-      const st=el("div","stats");
-      st.append(el("span",null,""),el("span",null,""),el("span",null,""));
-      st.children[0].append(el("b",null,f.members.length+healed)," / 20");
-      st.children[1].append(el("b",null,f.groups.length)," groups");
-      st.children[2].append(el("b",null,fmt(f.cp+sum(f.groups.filter(g=>g.healer).map(g=>g.healer))))," CP");
-      fh.append(ld,st);fc.append(fh);
-      const gs=el("div","groups");
-      for(const g of f.groups){
-        const gd=el("div","grp");
-        const gt=el("div","gt");gt.append(el("span",null,`Group ${g.n}`),el("b",null,fmt(g.cp+(+g.healer?.cp||0))));
-        gd.append(gt);
-        g.members.forEach(r=>gd.append(memberRow(r)));
-        for(let i=g.members.length;i<MEMBERS_PER_GROUP;i++){const o=el("div","m open");o.append(el("span","n","Open slot"),el("span","c",""));gd.append(o);}
-        if(g.healer){const h=memberRow(g.healer,"heal");h.querySelector(".n").prepend("✚ ");gd.append(h);}
-        else{const h=el("div","m heal miss");h.append(el("span","n","✚ Needs a healer"),el("span","c",""));gd.append(h);}
-        gs.append(gd);
-      }
-      fc.append(gs);fl.append(fc);
-    }
-    sec.append(fl);board.append(sec);
+  const host=$("forces");host.replaceChildren();
+  for(const f of FORCES){
+    const parties=O[f.id],members=parties.flatMap(p=>p.members),sum=sumCp(members);
+    const col=document.createElement("div");col.className="force";col.style.setProperty("--fc",`var(--f-${f.id})`);
+    col.innerHTML=`<div class="fh"><div class="t"><h3></h3><span class="count"></span></div><div class="job"></div>
+      <div class="stats"><span>Parties <b class="s0"></b></span><span>Total <b class="s1"></b></span><span>Avg <b class="s2"></b></span></div><div class="warns"></div></div><div class="parties"></div>`;
+    col.querySelector("h3").textContent=f.name;
+    col.querySelector(".count").textContent=members.length;
+    col.querySelector(".job").textContent=f.job;
+    col.querySelector(".s0").textContent=parties.length;
+    col.querySelector(".s1").textContent=fmt(sum);
+    col.querySelector(".s2").textContent=members.length?fmt(Math.round(sum/members.length)):"–";
+    const mc=parties.filter(p=>!p.cleric).length,mh=parties.filter(p=>!p.chanter).length;
+    const w=col.querySelector(".warns");
+    if(mc){const d=document.createElement("div");d.textContent=`Needs ${mc} more Cleric${mc===1?"":"s"}`;w.append(d);}
+    if(mh){const d=document.createElement("div");d.textContent=`Needs ${mh} more Chanter${mh===1?"":"s"}`;w.append(d);}
+    const ph=col.querySelector(".parties");
+    if(!parties.length){const e=document.createElement("div");e.className="empty";e.textContent="No one here yet.";ph.append(e);}
+    parties.forEach((p,i)=>{
+      const box=document.createElement("div");box.className="party"+(p.cleric&&p.chanter?"":" short");
+      const head=document.createElement("div");head.className="ph";
+      const t=document.createElement("span");t.textContent=`Party ${i+1}`;
+      const miss=[];if(!p.cleric)miss.push("no Cleric");if(!p.chanter)miss.push("no Chanter");
+      if(miss.length){const m=document.createElement("span");m.className="miss";m.textContent=" · "+miss.join(", ");t.append(m);}
+      const c=document.createElement("span");c.className="pcp";c.textContent=`${p.members.length}/${cfg.partySize} · ${fmt(sumCp(p.members))} CP`;
+      head.append(t,c);box.append(head);
+      const ol=document.createElement("ol");
+      for(const r of p.members)ol.append(rowEl(r,f));
+      box.append(ol);ph.append(box);
+    });
+    host.append(col);
   }
   syncOwn();
 }
+function rowEl(r,f){
+  const li=document.createElement("li");li.className="row"+(r.id===uid?" mine":"");
+  const pn=document.createElement("div");pn.className="pn";pn.append(r.name||"Unnamed");
+  const rl=role(r);
+  if(rl!=="dps"){const t=document.createElement("span");t.className="tag";t.textContent=rl;t.style.setProperty("--tc",`var(--r-${rl})`);pn.append(t);}
+  if(r.pin){const t=document.createElement("span");t.className="tag";t.textContent="Locked";t.title="Placed by an officer";pn.append(t);}
+  const pc=document.createElement("div");pc.className="pc";pc.textContent=(r.cls||"—")+(r.id===uid?" · you":"");
+  const cp=document.createElement("div");cp.className="cp";cp.textContent=fmt(r.cp);
+  li.append(pn,cp,pc);
+  if(isAdmin){
+    const t=document.createElement("div");t.className="rowtools";
+    t.append(mini("Edit",()=>startEdit(r.id)));
+    const sel=document.createElement("select");sel.className="mini";sel.setAttribute("aria-label",`Lock ${r.name} to a force`);
+    sel.innerHTML=`<option value="">Lock to: auto</option>`+FORCES.map(x=>`<option value="${x.id}">Lock to: ${x.name}</option>`).join("");
+    sel.value=r.pin||"";
+    sel.onchange=()=>save(r.id,docData(r,{pin:sel.value||null}));
+    t.append(sel);
+    t.append(mini(pendingRemove===r.id?"Confirm remove":"Remove",()=>{
+      if(pendingRemove===r.id){pendingRemove=null;removeDoc(r.id);}else{pendingRemove=r.id;render();}
+    },true));
+    li.append(t);
+  }
+  return li;
+}
+function mini(text,fn,danger){const b=document.createElement("button");b.type="button";b.className="mini"+(danger?" danger":"");b.textContent=text;b.onclick=fn;return b;}
 
-/* ---------- Storage: Firestore at rosters/{rosterKey}/signups/{signupId} ----------
+/* ---------- form ---------- */
+function syncOwn(){
+  if(editingId)return;
+  const mine=uid&&rows.get(uid);
+  if($("forOther").checked){$("submit").textContent="Add player";$("withdraw").hidden=true;return;}
+  $("submit").textContent=mine?"Update my signup":"Sign up";
+  $("withdraw").hidden=!mine;
+  $("formTitle").textContent=mine?"Your signup":"Sign up";
+}
+function fillFrom(d){$("name").value=d?.name||"";$("cls").value=d?.cls||"";$("cp").value=d?.cp??"";}
+function startEdit(id){
+  editingId=id;$("forOther").checked=false;fillFrom(rows.get(id));
+  $("formTitle").textContent="Editing "+(rows.get(id)?.name||"player");
+  $("submit").textContent="Save changes";$("cancel").hidden=false;$("withdraw").hidden=true;
+  $("console").scrollIntoView({behavior:"smooth",block:"start"});$("name").focus();
+}
+function endEdit(){editingId=null;$("cancel").hidden=true;fillFrom(uid&&rows.get(uid));syncOwn();}
+$("cancel").onclick=()=>{endEdit();say("");};
+$("forOther").onchange=()=>{if($("forOther").checked){editingId=null;$("cancel").hidden=true;fillFrom(null);$("formTitle").textContent="Add a player";}else fillFrom(uid&&rows.get(uid));syncOwn();};
+
+/* ---------- storage: Firestore at rosters/{rosterKey}/... ----------
  * The roster key travels in the link (#roster=...) and is remembered on this device,
  * so it never lives in the public repo. Officer tools show when the link ends in &officer.
  */
@@ -396,116 +384,112 @@ function readHash(){
   return {key,officer:/(?:^|&)officer(?:&|=|$)/.test(h)};
 }
 function randomId(n){const a="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";const b=new Uint8Array(n);crypto.getRandomValues(b);return [...b].map(x=>a[x%a.length]).join("");}
-let fs=null, rosterKey=null;
-const signupsCol=()=>fs.collection(db,"rosters",rosterKey,"signups");
+const col=name=>fs.collection(db,"rosters",rosterKey,name);
+const docData=(r,over)=>({name:r.name,cls:r.cls,cp:Number(r.cp)||0,pin:r.pin||null,updatedAt:new Date().toISOString(),...over});
 async function save(id,data){
-  try{await fs.setDoc(fs.doc(signupsCol(),id),data);return true;}
+  try{await fs.setDoc(fs.doc(col("signups"),id),data);return true;}
   catch(e){say(e?.code==="permission-denied"?"The roster rejected that entry. Check the name, class and CP and try again.":"That didn't save. Check your connection and try again.","err");return false;}
 }
 async function removeDoc(id){
-  try{await fs.deleteDoc(fs.doc(signupsCol(),id));return true;}
+  try{await fs.deleteDoc(fs.doc(col("signups"),id));if(editingId===id)endEdit();say("Removed.","ok");return true;}
   catch{say("Couldn't remove that entry. Try again.","err");return false;}
 }
-
 $("form").addEventListener("submit",async e=>{
   e.preventDefault();
   if(!db)return say(rosterKey?"The roster is still connecting. Wait a moment and try again, or reload the page.":"Open the roster link your organizer shared to sign up.","err");
-  const name=$("name").value.trim(), cls=$("cls").value.trim();
+  const name=$("name").value.trim(),cls=$("cls").value;
   const cpRaw=$("cp").value.replace(/[,\s.]/g,"");
   if(!name)return say("Enter your character name.","err"),$("name").focus();
-  if(!cls)return say("Enter your class.","err"),$("cls").focus();
+  if(!cls)return say("Choose your class.","err"),$("cls").focus();
   if(!/^\d{1,9}$/.test(cpRaw))return say("CP should be a whole number, like 48500.","err"),$("cp").focus();
-  if(!chosen)return say("Pick a section.","err");
   const forOther=$("forOther").checked&&isAdmin;
   if(!editingId&&!forOther&&!uid){uid=randomId(20);store("rosterMe:"+rosterKey,uid);}
   const id=editingId||(forOther?randomId(20):uid);
   const prev=rows.get(id)||{};
-  const lead=chosen!=="healers"&&(isAdmin?$("isLead").checked:(prev.force===chosen&&!!prev.lead));
-  const data={name,cls,cp:Number(cpRaw),force:chosen,lead,updatedAt:new Date().toISOString()};
   $("submit").disabled=true;
-  const ok=await save(id,data);
+  const ok=await save(id,docData({name,cls,cp:Number(cpRaw),pin:prev.pin}));
   $("submit").disabled=false;
   if(!ok)return;
   if(editingId){endEdit();say(`Saved ${name}.`,"ok");}
-  else if(id!==uid){fillFrom(null);say(`Added ${name} to ${secName(chosen)}.`,"ok");}
-  else say(`You're in ${secName(chosen)}.`,"ok");
+  else if(id!==uid){fillFrom(null);say(`Added ${name}.`,"ok");}
+  else say("You're signed up. Your force is shown below.","ok");
 });
 $("withdraw").onclick=async()=>{
-  const b=$("withdraw");
-  if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Confirm withdraw";return;}
-  b.dataset.armed="";b.textContent="Withdraw";
+  const w=$("withdraw");
+  if(w.dataset.armed!=="1"){w.dataset.armed="1";w.textContent="Confirm withdraw";return;}
+  w.dataset.armed="";w.textContent="Withdraw";
   if(await removeDoc(uid)){fillFrom(null);syncOwn();say("You've withdrawn.","ok");}
 };
-$("removeBtn").onclick=async()=>{
-  const b=$("removeBtn");
-  if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Confirm remove";return;}
-  const name=rows.get(editingId)?.name||"Player";
-  if(await removeDoc(editingId)){endEdit();say(`Removed ${name}.`,"ok");}
-};
-function lockForm(text){
-  for(const e of $("form").querySelectorAll("input,button"))e.disabled=true;
-  $("formHint").textContent=text;
-}
+function lockForm(text){for(const el of $("form").querySelectorAll("input,select,button"))el.disabled=true;$("formHint").textContent=text;}
 
+/* ---------- settings ---------- */
+function showCfg(){$("sParty").value=cfg.partySize;$("sPow").value=cfg.powerfulParties;}
+$("sSave").onclick=async()=>{
+  const p=parseInt($("sParty").value,10),w=parseInt($("sPow").value,10);
+  if(!(p>=2&&p<=12))return say("Party size should be 2–12.","err","sMsg");
+  if(!(w>=0&&w<=50))return say("Parties in Powerful's should be 0–50.","err","sMsg");
+  try{await fs.setDoc(fs.doc(col("settings"),"config"),{partySize:p,powerfulParties:w});say("Saved.","ok","sMsg");}
+  catch{say("Couldn't save settings. Try again.","err","sMsg");}
+};
+
+/* ---------- export ---------- */
 $("export").onclick=()=>{
   const esc=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
-  const all=[...rows.entries()].map(([id,d])=>({id,...d}));
-  const F=buildFormation(all);
-  const lines=[["Section","Force","Group","Role","Name","Class","CP"].join(",")];
-  for(const id of COMBAT)for(const f of F.sections[id].forces)for(const g of f.groups){
-    for(const r of g.members)lines.push([secName(id),f.n,g.n,r===f.leader?"Force leader":"Member",r.name,r.cls,r.cp].map(esc).join(","));
-    if(g.healer)lines.push([secName(id),f.n,g.n,"Healer",g.healer.name,g.healer.cls,g.healer.cp].map(esc).join(","));
-  }
-  for(const h of F.reserve)lines.push(["Healers","","","Reserve healer",h.name,h.cls,h.cp].map(esc).join(","));
+  const O=organize([...rows.entries()].map(([id,d])=>({id,...d})));
+  const lines=[["Force","Party","Name","Class","CP","Locked"].join(",")];
+  for(const f of FORCES)O[f.id].forEach((p,i)=>p.members.forEach(r=>lines.push([f.name,i+1,r.name,r.cls,r.cp,r.pin?"Yes":""].map(esc).join(","))));
   const url=URL.createObjectURL(new Blob([lines.join("\n")],{type:"text/csv"}));
-  const a=document.createElement("a");a.href=url;a.download="server-battle-roster.csv";document.body.append(a);a.click();a.remove();
+  const a=document.createElement("a");a.href=url;a.download="aura-legion-battle-roster.csv";document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-
 function linkFor(officer){return location.origin+location.pathname+"#roster="+rosterKey+(officer?"&officer":"");}
 async function copyLink(btn,officer){
-  const link=linkFor(officer);
+  const link=linkFor(officer),label=btn.textContent;
   try{await navigator.clipboard.writeText(link);btn.textContent="Copied";}
   catch{window.prompt("Copy this link:",link);}
-  setTimeout(()=>btn.textContent=officer?"Copy officer link":"Copy player link",1500);
+  setTimeout(()=>btn.textContent=label,1500);
 }
 $("copyPlayer").onclick=e=>copyLink(e.currentTarget,false);
 $("copyOfficer").onclick=e=>copyLink(e.currentTarget,true);
 $("newRoster").onclick=()=>{location.hash="roster="+randomId(20)+"&officer";location.reload();};
 
+/* ---------- boot ---------- */
 render();
 (async()=>{
   const h=readHash();
   rosterKey=h.key;isAdmin=h.officer;
-  const cfg=window.FIREBASE_CONFIG;
-  if(!cfg||!cfg.projectId){
+  const conf=window.FIREBASE_CONFIG;
+  if(!conf||!conf.projectId){
     $("notice").textContent="The database isn't set up yet. Add the Firebase settings to config.js.";
     lockForm("Sign-ups open once the database is set up.");return;
   }
   if(!rosterKey){
-    $("notice").textContent="Open the roster link your organizer shared to see the formation and sign up.";
+    $("notice").textContent="Open the roster link your organizer shared to see the forces and sign up.";
     $("newRoster").hidden=false;
     lockForm("You need the roster link from your organizer to sign up.");return;
   }
   uid=store("rosterMe:"+rosterKey)||null;
   $("officerWrap").hidden=!isAdmin;
+  $("settingsPanel").hidden=!isAdmin;
   $("copyPlayer").hidden=!isAdmin;$("copyOfficer").hidden=!isAdmin;
-  if(isAdmin)$("formHint").textContent="Officer tools are on. Add players, click any name in the formation to edit or remove it, and tick Force leader to make someone lead a force. Each force leader starts their own force.";
-  render();
+  if(isAdmin)$("formHint").textContent+=" Officer tools are on: add players, edit any entry, and lock players to a force.";
+  showCfg();render();
   try{
     const base="https://www.gstatic.com/firebasejs/10.12.2/";
     const app=await import(base+"firebase-app.js");
     fs=await import(base+"firebase-firestore.js");
-    db=fs.getFirestore(app.initializeApp(cfg));
+    db=fs.getFirestore(app.initializeApp(conf));
   }catch(e){
     $("notice").textContent="Couldn't reach the database. Check your connection and reload the page.";
     lockForm("Sign-ups are unavailable until the page can reach the database.");return;
   }
+  fs.onSnapshot(fs.doc(col("settings"),"config"),snap=>{
+    cfg={...DEFAULTS,...(snap.exists()?snap.data():{})};showCfg();render();
+  },()=>{});
   let first=true;
-  fs.onSnapshot(signupsCol(),snap=>{
+  fs.onSnapshot(col("signups"),snap=>{
     rows=new Map(snap.docs.map(x=>[x.id,x.data()]));
-    $("notice").hidden=true;
-    render();
+    $("notice").hidden=true;render();
     if(first){first=false;if(uid&&rows.get(uid)&&!editingId)fillFrom(rows.get(uid));syncOwn();}
   },err=>{
     $("notice").hidden=false;
@@ -515,5 +499,4 @@ render();
   });
 })();
 </script>
-</body>
-</html>
+</body></html>
