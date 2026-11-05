@@ -37,6 +37,15 @@ h1{font-family:var(--brand);font-weight:700;font-size:clamp(28px,4.5vw,44px);let
 .totals div{display:flex;flex-direction:column;align-items:flex-end}
 .totals b{font-family:var(--display);font-size:24px;font-weight:600}
 .totals span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.siege{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 24px;padding:14px 20px;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));border-radius:10px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 12%,var(--panel)),var(--panel))}
+.siege .lbl{display:flex;flex-direction:column;gap:2px}
+.siege .lbl b{font-family:var(--brand);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-size:15px}
+.siege .lbl span{font-size:13px;color:var(--muted)}
+.siege .clock{display:flex;gap:14px;font-variant-numeric:tabular-nums}
+.siege .clock div{display:flex;flex-direction:column;align-items:center;min-width:46px}
+.siege .clock b{font-family:var(--display);font-size:28px;font-weight:600;line-height:1}
+.siege .clock span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px}
 h2{font-family:var(--display);font-size:18px;letter-spacing:.1em;text-transform:uppercase;margin:0;font-weight:600}
@@ -127,6 +136,16 @@ select.mini{width:auto;padding:3px 6px}
       <div><b id="tAvg">–</b><span>Avg CP</span></div>
     </div>
   </header>
+
+  <section class="siege" aria-label="Next siege">
+    <div class="lbl"><b>Next Artifact Siege</b><span id="siegeWhen">Mon · Thu · Sat at 9:00 PM server time</span></div>
+    <div class="clock" id="siegeClock" aria-live="off">
+      <div><b id="sgD">–</b><span>Days</span></div>
+      <div><b id="sgH">–</b><span>Hours</span></div>
+      <div><b id="sgM">–</b><span>Min</span></div>
+      <div><b id="sgS">–</b><span>Sec</span></div>
+    </div>
+  </section>
 
   <section class="panel" id="console">
     <div>
@@ -470,6 +489,39 @@ async function copyLink(btn,officer){
 $("copyPlayer").onclick=e=>copyLink(e.currentTarget,false);
 $("copyOfficer").onclick=e=>copyLink(e.currentTarget,true);
 $("newRoster").onclick=()=>{location.hash="roster="+randomId(20)+"&officer";location.reload();};
+
+/* ---------- siege countdown ----------
+ * Artifact Siege: Monday, Thursday and Saturday at 21:00 server time.
+ * Server time is taken as NA East (America/New_York); change SIEGE_TZ if the server clock differs.
+ */
+const SIEGE_TZ="America/New_York", SIEGE_DAYS=[1,4,6], SIEGE_HOUR=21;
+function tzParts(t){
+  const o={};for(const p of new Intl.DateTimeFormat("en-US",{timeZone:SIEGE_TZ,hourCycle:"h23",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",second:"numeric",weekday:"short"}).formatToParts(t))o[p.type]=p.value;
+  return o;
+}
+function zonedToUtc(y,m,d,h){            // wall time in SIEGE_TZ -> epoch ms
+  let guess=Date.UTC(y,m-1,d,h);
+  for(let i=0;i<2;i++){const p=tzParts(guess);const asUtc=Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second);guess+=Date.UTC(y,m-1,d,h)-asUtc;}
+  return guess;
+}
+function nextSiege(now){
+  const p=tzParts(now);
+  for(let i=0;i<8;i++){
+    const base=new Date(Date.UTC(+p.year,+p.month-1,+p.day+i));
+    if(!SIEGE_DAYS.includes(base.getUTCDay()))continue;
+    const t=zonedToUtc(base.getUTCFullYear(),base.getUTCMonth()+1,base.getUTCDate(),SIEGE_HOUR);
+    if(t>now)return t;
+  }
+}
+const pad=n=>String(n).padStart(2,"0");
+function tickSiege(){
+  const now=Date.now(),t=nextSiege(now),d=Math.max(0,Math.floor((t-now)/1000));
+  $("sgD").textContent=Math.floor(d/86400);$("sgH").textContent=pad(Math.floor(d%86400/3600));
+  $("sgM").textContent=pad(Math.floor(d%3600/60));$("sgS").textContent=pad(d%60);
+  const when=new Date(t).toLocaleString(undefined,{weekday:"long",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
+  if($("siegeWhen").dataset.t!==String(t)){$("siegeWhen").dataset.t=String(t);$("siegeWhen").textContent=`${when} your time · Mon, Thu, Sat at 9:00 PM server time`;}
+}
+tickSiege();setInterval(tickSiege,1000);
 
 /* ---------- boot ---------- */
 render();
