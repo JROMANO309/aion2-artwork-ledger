@@ -76,13 +76,12 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .fh .job{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-family:var(--display)}
 .stats{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .stats b{color:var(--fg);font-weight:600}
-.warns{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--danger)}
+.warns{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--muted)}
 .parties{display:flex;flex-direction:column;gap:10px;padding:10px}
 .party{border:1px solid var(--line);border-radius:6px;background:color-mix(in srgb,var(--panel-2) 50%,transparent)}
-.party.short{border-color:color-mix(in srgb,var(--danger) 55%,var(--line))}
 .ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
 .ph .pcp{color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.04em}
-.ph .miss{color:var(--danger);letter-spacing:.04em;text-transform:none;font-family:var(--body);font-weight:500;font-size:12px}
+.ph .miss{color:var(--muted);letter-spacing:.04em;text-transform:none;font-family:var(--body);font-weight:500;font-size:12px}
 ol{list-style:none;margin:0;padding:4px;display:flex;flex-direction:column;gap:2px}
 li.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;padding:7px 8px;border-radius:5px}
 li.row:hover{background:var(--panel-2)}
@@ -172,7 +171,7 @@ select.mini{width:auto;padding:3px 6px}
       <li>Powerful's Force takes the strongest players by CP, filling its party slots — including the strongest Cleric and Chanter for each of its parties.</li>
       <li>Every Templar goes to BBCwielder's Force, which also gets a Cleric and Chanter for each of its parties.</li>
       <li>Everyone else is split evenly between Beso's and Pope's, with Clerics and Chanters spread across them and CP kept balanced.</li>
-      <li>Every party gets one Cleric and one Chanter; the rest fill in to keep party CP even. A red party is missing one.</li>
+      <li>Clerics and Chanters are preferred, not required: each party gets one of each when there are enough, and the rest fill in to keep party CP even.</li>
       <li>Use “Lock to” on any player to place them in a force by hand; the auto-sort works around locks.</li>
     </ul>
   </section>
@@ -227,7 +226,7 @@ function organize(all){
     else if(isTemplar(r))F.templar.push(r);   // every unlocked Templar goes to BBCwielder's Force
     else pool.push(r);
   }
-  // BBCwielder's Force needs a Cleric + Chanter for each of its parties
+  // BBCwielder's Force is offered a Cleric + Chanter for each of its parties (preferred, not required)
   const tParties=F.templar.length?Math.ceil(F.templar.length/Math.max(1,ps-2)):0;
 
   // Powerful's: strongest players, with a Cleric + Chanter for each of its parties
@@ -261,7 +260,7 @@ function organize(all){
   for(const r of pool.filter(r=>role(r)==="dps"))pick(null).push(r);
 
   const out={};
-  for(const f of FORCES)out[f.id]=buildParties(F[f.id],ps,f.id==="templar"?tParties:0);
+  for(const f of FORCES)out[f.id]=buildParties(F[f.id],ps,0);
   return out;
 }
 function buildParties(members,ps,minParties){
@@ -307,7 +306,7 @@ function render(){
     add(`Clerics <b>${nC}</b> · Chanters <b>${nH}</b>`);
     if(missC||missH){
       const bits=[];if(missC)bits.push(`${missC} more Cleric${missC===1?"":"s"}`);if(missH)bits.push(`${missH} more Chanter${missH===1?"":"s"}`);
-      add("Need "+bits.join(" and "),"bad");
+      add("Preferred, not required: "+bits.join(" and ")+" would give every party one of each");
     } else add("Every party has a Cleric and a Chanter","good");
   }
 
@@ -325,12 +324,12 @@ function render(){
     col.querySelector(".s2").textContent=members.length?fmt(Math.round(sum/members.length)):"–";
     const mc=parties.filter(p=>!p.cleric).length,mh=parties.filter(p=>!p.chanter).length;
     const w=col.querySelector(".warns");
-    if(mc){const d=document.createElement("div");d.textContent=`Needs ${mc} more Cleric${mc===1?"":"s"}`;w.append(d);}
-    if(mh){const d=document.createElement("div");d.textContent=`Needs ${mh} more Chanter${mh===1?"":"s"}`;w.append(d);}
+    if(mc){const d=document.createElement("div");d.textContent=`${mc} part${mc===1?"y":"ies"} without a Cleric`;w.append(d);}
+    if(mh){const d=document.createElement("div");d.textContent=`${mh} part${mh===1?"y":"ies"} without a Chanter`;w.append(d);}
     const ph=col.querySelector(".parties");
     if(!parties.length){const e=document.createElement("div");e.className="empty";e.textContent="No one here yet.";ph.append(e);}
     parties.forEach((p,i)=>{
-      const box=document.createElement("div");box.className="party"+(p.cleric&&p.chanter?"":" short");
+      const box=document.createElement("div");box.className="party";
       const head=document.createElement("div");head.className="ph";
       const t=document.createElement("span");t.textContent=`Party ${i+1}`;
       const miss=[];if(!p.cleric)miss.push("no Cleric");if(!p.chanter)miss.push("no Chanter");

@@ -7,7 +7,7 @@ Sign-up page for Aion 2 server battles. Players enter their character name, clas
 - **Pope's Force**
 - **BBCwielder's Force** (Templars)
 
-Each force is split into parties, and every party gets one Cleric and one Chanter. Parties missing either are outlined in red, and the summary line shows how many more Clerics or Chanters are needed. Everything updates live for everyone. Signups are stored in the same Firebase project as the artwork ledger (`../config.js`).
+Each force is split into parties. Clerics and Chanters are preferred, not required: each party gets one of each when there are enough, and a note shows which parties are without one. Everything updates live for everyone. Signups are stored in the same Firebase project as the artwork ledger (`../config.js`).
 
 ## How players are placed
 
