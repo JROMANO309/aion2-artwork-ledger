@@ -1,19 +1,21 @@
 # Aura Legion Battle Roster
 
-Sign-up page for Aion 2 server battles. Players enter their character name, class and CP, and the page organizes everyone into three forces:
+Sign-up page for Aion 2 server battles. Players enter their character name, class and CP, and the page organizes everyone into four forces:
 
 - **Beso's Force**
 - **Powerful's Force**
 - **Pope's Force**
+- **BBCwielder's Force** (Templars)
 
 Each force is split into parties, and every party gets one Cleric and one Chanter. Parties missing either are outlined in red, and the summary line shows how many more Clerics or Chanters are needed. Everything updates live for everyone. Signups are stored in the same Firebase project as the artwork ledger (`../config.js`).
 
 ## How players are placed
 
 - Powerful's Force is filled first, by CP, up to its party slots, including a Cleric and a Chanter for each of its parties.
+- Every Templar goes to BBCwielder's Force, which also gets a Cleric and a Chanter for each of its parties.
 - Everyone else is split evenly between Beso's and Pope's, with Clerics and Chanters spread across both and total CP kept even.
 - Inside a force, the remaining players fill the parties so party CP stays even.
-- Officers can lock any player to a force with **Lock to**. Locked players stay put and the sorting works around them.
+- Officers can lock any player to Beso's, Powerful's or Pope's with **Lock to** (a locked Templar stays in that force). Locked players stay put and the sorting works around them.
 
 Officers can change the party size (default 4) and the number of parties in Powerful's Force (default 2) in **Organizer settings**.
 

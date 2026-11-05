@@ -67,7 +67,7 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .coverage b{color:var(--fg)} .coverage .bad{color:var(--danger)} .coverage .good{color:var(--ok)}
 .notice{padding:12px 14px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:14px}
 
-.forces{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.forces{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
 .force{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--fc);border-radius:8px;display:flex;flex-direction:column;min-width:0}
 .fh{padding:14px 14px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
 .fh .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -98,7 +98,8 @@ li.row.mine{background:color-mix(in srgb,var(--fc) 12%,transparent);box-shadow:i
 select.mini{width:auto;padding:3px 6px}
 .empty{padding:18px 14px;color:var(--muted);font-size:13px}
 
-@media (max-width:1000px){.forces{grid-template-columns:1fr}}
+@media (max-width:1200px){.forces{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.forces{grid-template-columns:1fr}}
 @media (max-width:640px){.emblem{width:56px;height:56px}.fields{grid-template-columns:1fr 1fr}.fields label:first-child{grid-column:1 / -1}.totals{gap:16px}}
 </style>
 </head>
@@ -118,7 +119,7 @@ select.mini{width:auto;padding:3px 6px}
       <div>
         <div class="eyebrow">Aura Legion</div>
         <h1>Server Battle Roster</h1>
-        <div class="sub">Beso · Powerful · Pope</div>
+        <div class="sub">Beso · Powerful · Pope · BBCwielder</div>
       </div>
     </div>
     <div class="totals" aria-live="polite">
@@ -169,7 +170,8 @@ select.mini{width:auto;padding:3px 6px}
     </div>
     <ul class="rules">
       <li>Powerful's Force takes the strongest players by CP, filling its party slots — including the strongest Cleric and Chanter for each of its parties.</li>
-      <li>Everyone else is split evenly between Beso's and Pope's, with Clerics and Chanters spread across both and CP kept balanced.</li>
+      <li>Every Templar goes to BBCwielder's Force, which also gets a Cleric and Chanter for each of its parties.</li>
+      <li>Everyone else is split evenly between Beso's and Pope's, with Clerics and Chanters spread across them and CP kept balanced.</li>
       <li>Every party gets one Cleric and one Chanter; the rest fill in to keep party CP even. A red party is missing one.</li>
       <li>Use “Lock to” on any player to place them in a force by hand; the auto-sort works around locks.</li>
     </ul>
@@ -196,8 +198,10 @@ select.mini{width:auto;padding:3px 6px}
 const FORCES=[
   {id:"beso",name:"Beso's Force",job:"Led by Beso"},
   {id:"powerful",name:"Powerful's Force",job:"Led by Powerful"},
-  {id:"pope",name:"Pope's Force",job:"Led by Pope"}
+  {id:"pope",name:"Pope's Force",job:"Led by Pope"},
+  {id:"templar",name:"BBCwielder's Force",job:"Templars · Led by BBCwielder"}
 ];
+const LOCKABLE=["beso","powerful","pope"];   // templar force is filled by class, so it isn't a lock target
 const DEFAULTS={partySize:4,powerfulParties:2};
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString("en-US");
@@ -215,9 +219,16 @@ const sumCp=l=>l.reduce((s,r)=>s+(+r.cp||0),0);
 function organize(all){
   const ps=Math.max(2,+cfg.partySize||DEFAULTS.partySize);
   const pp=Math.max(0,+cfg.powerfulParties||0);
-  const F={powerful:[],beso:[],pope:[]};
+  const F={powerful:[],beso:[],pope:[],templar:[]};
   const pool=[];
-  for(const r of [...all].sort(byCp)){(F[r.pin]?F[r.pin]:pool).push(r);}
+  const isTemplar=r=>/templar/i.test(String(r.cls||""));
+  for(const r of [...all].sort(byCp)){
+    if(LOCKABLE.includes(r.pin))F[r.pin].push(r);
+    else if(isTemplar(r))F.templar.push(r);   // every unlocked Templar goes to BBCwielder's Force
+    else pool.push(r);
+  }
+  // BBCwielder's Force needs a Cleric + Chanter for each of its parties
+  const tParties=F.templar.length?Math.ceil(F.templar.length/Math.max(1,ps-2)):0;
 
   // Powerful's: strongest players, with a Cleric + Chanter for each of its parties
   let room=Math.max(0,pp*ps-F.powerful.length);
@@ -229,7 +240,17 @@ function organize(all){
   for(const r of pool.filter(r=>role(r)==="dps")){if(room<=0)break;take(r);}
   for(const r of [...pool]){if(room<=0)break;take(r);}
 
-  // Beso's & Pope's: even split, supports spread, CP balanced
+  // Remaining supports: shared out one at a time between BBCwielder's (until covered), Beso's and Pope's
+  for(const rl of ["cleric","chanter"]){
+    for(const r of pool.filter(x=>role(x)===rl)){
+      const cnt=a=>a.filter(x=>role(x)===rl).length;
+      const opts=[F.beso,F.pope];
+      if(cnt(F.templar)<tParties)opts.unshift(F.templar);
+      opts.sort((a,b)=>cnt(a)-cnt(b)||(a===F.templar?-1:b===F.templar?1:a.length-b.length||sumCp(a)-sumCp(b)));
+      opts[0].push(r);
+    }
+  }
+  // Beso's & Pope's: even split of everyone else, CP balanced
   const pick=(rl)=>{
     const [a,b]=[F.beso,F.pope];
     const ca=rl?a.filter(r=>role(r)===rl).length:0, cb=rl?b.filter(r=>role(r)===rl).length:0;
@@ -237,16 +258,15 @@ function organize(all){
     if(a.length!==b.length)return a.length<b.length?a:b;
     return sumCp(a)<=sumCp(b)?a:b;
   };
-  for(const rl of ["cleric","chanter"])for(const r of pool.filter(r=>role(r)===rl))pick(rl).push(r);
   for(const r of pool.filter(r=>role(r)==="dps"))pick(null).push(r);
 
   const out={};
-  for(const f of FORCES)out[f.id]=buildParties(F[f.id],ps,f.id==="powerful"?pp:0);
+  for(const f of FORCES)out[f.id]=buildParties(F[f.id],ps,f.id==="templar"?tParties:0);
   return out;
 }
 function buildParties(members,ps,minParties){
   const sorted=[...members].sort(byCp);
-  const n=Math.ceil(members.length/ps);
+  const n=Math.max(Math.ceil(members.length/ps),members.length?minParties:0);
   const parties=Array.from({length:n},()=>[]);
   const cpOf=p=>sumCp(p);
   const clerics=sorted.filter(r=>role(r)==="cleric"),chanters=sorted.filter(r=>role(r)==="chanter");
@@ -338,7 +358,7 @@ function rowEl(r,f){
     const t=document.createElement("div");t.className="rowtools";
     t.append(mini("Edit",()=>startEdit(r.id)));
     const sel=document.createElement("select");sel.className="mini";sel.setAttribute("aria-label",`Lock ${r.name} to a force`);
-    sel.innerHTML=`<option value="">Lock to: auto</option>`+FORCES.map(x=>`<option value="${x.id}">Lock to: ${x.name}</option>`).join("");
+    sel.innerHTML=`<option value="">Lock to: auto</option>`+FORCES.filter(x=>LOCKABLE.includes(x.id)).map(x=>`<option value="${x.id}">Lock to: ${x.name}</option>`).join("");
     sel.value=r.pin||"";
     sel.onchange=()=>save(r.id,docData(r,{pin:sel.value||null}));
     t.append(sel);
