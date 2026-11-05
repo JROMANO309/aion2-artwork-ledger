@@ -138,7 +138,7 @@ select.mini{width:auto;padding:3px 6px}
   </header>
 
   <section class="siege" aria-label="Next siege">
-    <div class="lbl"><b>Next Artifact Siege</b><span id="siegeWhen">Mon · Thu · Sat at 9:00 PM server time</span></div>
+    <div class="lbl"><b>Next Artifact Siege</b><span id="siegeWhen">Thu · Sat at 9:00 PM server time</span></div>
     <div class="clock" id="siegeClock" aria-live="off">
       <div><b id="sgD">–</b><span>Days</span></div>
       <div><b id="sgH">–</b><span>Hours</span></div>
@@ -491,10 +491,10 @@ $("copyOfficer").onclick=e=>copyLink(e.currentTarget,true);
 $("newRoster").onclick=()=>{location.hash="roster="+randomId(20)+"&officer";location.reload();};
 
 /* ---------- siege countdown ----------
- * Artifact Siege: Monday, Thursday and Saturday at 21:00 server time.
+ * Artifact Siege: Thursday and Saturday at 21:00 server time (twice a week since the Nov 4, 2026 update).
  * Server time is taken as NA East (America/New_York); change SIEGE_TZ if the server clock differs.
  */
-const SIEGE_TZ="America/New_York", SIEGE_DAYS=[1,4,6], SIEGE_HOUR=21;
+const SIEGE_TZ="America/New_York", SIEGE_DAYS=[4,6], SIEGE_HOUR=21;
 function tzParts(t){
   const o={};for(const p of new Intl.DateTimeFormat("en-US",{timeZone:SIEGE_TZ,hourCycle:"h23",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",second:"numeric",weekday:"short"}).formatToParts(t))o[p.type]=p.value;
   return o;
@@ -519,7 +519,7 @@ function tickSiege(){
   $("sgD").textContent=Math.floor(d/86400);$("sgH").textContent=pad(Math.floor(d%86400/3600));
   $("sgM").textContent=pad(Math.floor(d%3600/60));$("sgS").textContent=pad(d%60);
   const when=new Date(t).toLocaleString(undefined,{weekday:"long",hour:"numeric",minute:"2-digit",timeZoneName:"short"});
-  if($("siegeWhen").dataset.t!==String(t)){$("siegeWhen").dataset.t=String(t);$("siegeWhen").textContent=`${when} your time · Mon, Thu, Sat at 9:00 PM server time`;}
+  if($("siegeWhen").dataset.t!==String(t)){$("siegeWhen").dataset.t=String(t);$("siegeWhen").textContent=`${when} your time · Thu & Sat at 9:00 PM server time`;}
 }
 tickSiege();setInterval(tickSiege,1000);
 
