@@ -12,7 +12,7 @@
   --bg:#0b0d16;--panel:#131624;--panel-2:#1b1f31;--line:#2c3150;
   --fg:#ece8dc;--muted:#9a9ab3;--accent:#f2c15a;--aura:#ffe3a1;--celestial:#9fd8ff;
   --danger:#ff5c6c;--ok:#4cd964;
-  --f-beso:#5fa8ff;--f-powerful:#ff8a5c;--f-pope:#b58cff;
+  --f-pope:#b58cff;--f-templar:#ff8a5c;
   --r-cleric:#4cd964;--r-chanter:#2ed3c6;
   --brand:"Cinzel","Trajan Pro",Georgia,serif;
   --display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
@@ -78,7 +78,7 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .coverage b{color:var(--fg)} .coverage .bad{color:var(--danger)} .coverage .good{color:var(--ok)}
 .notice{padding:12px 14px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:14px}
 
-.forces{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+.forces{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 .force{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--fc);border-radius:8px;display:flex;flex-direction:column;min-width:0}
 .fh{padding:14px 14px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
 .fh .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -129,7 +129,7 @@ select.mini{width:auto;padding:3px 6px}
       <div>
         <div class="eyebrow">Aura Legion</div>
         <h1>Server Battle Roster</h1>
-        <div class="sub">Beso · Powerful · Pope · BBCwielder</div>
+        <div class="sub">Pope · BBCwielder</div>
       </div>
     </div>
     <div class="totals" aria-live="polite">
@@ -188,8 +188,8 @@ select.mini{width:auto;padding:3px 6px}
       <span class="msg" id="sMsg" role="status"></span>
     </div>
     <ul class="rules">
-      <li>Every Templar goes to BBCwielder's Force, which also gets a Cleric and Chanter for each of its parties.</li>
-      <li>Everyone else is split evenly between Beso's and Pope's, with Clerics and Chanters spread across them and CP kept balanced.</li>
+      <li>Every Templar goes to BBCwielder's Force; everyone else fills in so both forces end up about the same size, with CP kept balanced.</li>
+      <li>Clerics and Chanters are spread across both forces.</li>
       <li>Clerics and Chanters are preferred, not required: each party gets one of each when there are enough, and the rest fill in to keep party CP even.</li>
       <li>Use “Lock to” on any player to place them in a force by hand; the auto-sort works around locks.</li>
     </ul>
@@ -214,14 +214,11 @@ select.mini{width:auto;padding:3px 6px}
 <script src="../config.js"></script>
 <script>
 const FORCES=[
-  {id:"beso",name:"Beso's Force",job:"Led by Beso"},
-  {id:"powerful",name:"Powerful's Force",job:"Led by Powerful"},
   {id:"pope",name:"Pope's Force",job:"Led by Pope"},
   {id:"templar",name:"BBCwielder's Force",job:"Templars · Led by BBCwielder"}
 ];
-const LOCKABLE=["beso","powerful","pope"];   // templar force is filled by class, so it isn't a lock target
+const LOCKABLE=["pope"];   // BBCwielder's is filled by class; older locks to Beso's/Powerful's are ignored
 const DEFAULTS={partySize:4,powerfulParties:2};
-const POWERFUL_SHARE=0.25;   // Powerful's Force holds the top 25% of the roster
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString("en-US");
 const forceName=id=>FORCES.find(f=>f.id===id)?.name||id;
@@ -247,7 +244,7 @@ function arrange(all){
   const size=id=>O[id].reduce((s,p)=>s+p.members.length,0);
   for(const r0 of late){
     const r={...r0,late:true},rl=role(r);
-    const fid=LOCKABLE.includes(r.pin)?r.pin:isTemplarCls(r)?"templar":(size("pope")<size("beso")?"pope":"beso");
+    const fid=LOCKABLE.includes(r.pin)?r.pin:isTemplarCls(r)?"templar":(size("templar")<size("pope")?"templar":"pope");
     const parties=O[fid];
     const open=parties.filter(p=>p.members.length<ps);
     let p=(rl!=="dps"&&open.find(x=>!x[rl]))||open[0];
@@ -258,49 +255,23 @@ function arrange(all){
 }
 function organize(all){
   const ps=Math.max(2,+cfg.partySize||DEFAULTS.partySize);
-  const powerfulSize=Math.round(all.length*POWERFUL_SHARE);
-  const pp=Math.ceil(powerfulSize/ps);   // parties in Powerful's, each offered a Cleric + Chanter
-  const F={powerful:[],beso:[],pope:[],templar:[]};
+  const F={pope:[],templar:[]};
   const pool=[];
-  const isTemplar=r=>/templar/i.test(String(r.cls||""));
   for(const r of [...all].sort(byCp)){
     if(LOCKABLE.includes(r.pin))F[r.pin].push(r);
-    else if(isTemplar(r))F.templar.push(r);   // every unlocked Templar goes to BBCwielder's Force
+    else if(isTemplarCls(r))F.templar.push(r);   // Templars start in BBCwielder's Force
     else pool.push(r);
   }
-  // BBCwielder's Force is offered a Cleric + Chanter for each of its parties (preferred, not required)
-  const tParties=F.templar.length?Math.ceil(F.templar.length/Math.max(1,ps-2)):0;
-
-  // Powerful's: strongest players, with a Cleric + Chanter for each of its parties
-  let room=Math.max(0,powerfulSize-F.powerful.length);
-  const take=r=>{pool.splice(pool.indexOf(r),1);F.powerful.push(r);room--;};
+  const forces=[F.pope,F.templar];
+  // Clerics and Chanters: shared out one at a time, to the force with fewer of that role (then the smaller force)
   for(const rl of ["cleric","chanter"]){
-    let need=pp-F.powerful.filter(r=>role(r)===rl).length;
-    for(const r of pool.filter(r=>role(r)===rl)){if(need<=0||room<=0)break;take(r);need--;}
+    const cnt=a=>a.filter(x=>role(x)===rl).length;
+    for(const r of pool.filter(x=>role(x)===rl))
+      [...forces].sort((a,b)=>cnt(a)-cnt(b)||a.length-b.length||sumCp(a)-sumCp(b))[0].push(r);
   }
-  for(const r of pool.filter(r=>role(r)==="dps")){if(room<=0)break;take(r);}
-  for(const r of [...pool]){if(room<=0)break;take(r);}
-
-  // Remaining supports: shared out one at a time between BBCwielder's (until covered), Beso's and Pope's
-  for(const rl of ["cleric","chanter"]){
-    for(const r of pool.filter(x=>role(x)===rl)){
-      const cnt=a=>a.filter(x=>role(x)===rl).length;
-      const opts=[F.beso,F.pope];
-      if(cnt(F.templar)<tParties)opts.unshift(F.templar);
-      opts.sort((a,b)=>cnt(a)-cnt(b)||(a===F.templar?-1:b===F.templar?1:a.length-b.length||sumCp(a)-sumCp(b)));
-      opts[0].push(r);
-    }
-  }
-  // Beso's & Pope's: even split of everyone else, CP balanced
-  const pick=(rl)=>{
-    const [a,b]=[F.beso,F.pope];
-    const ca=rl?a.filter(r=>role(r)===rl).length:0, cb=rl?b.filter(r=>role(r)===rl).length:0;
-    if(ca!==cb)return ca<cb?a:b;
-    if(a.length!==b.length)return a.length<b.length?a:b;
-    return sumCp(a)<=sumCp(b)?a:b;
-  };
-  for(const r of pool.filter(r=>role(r)==="dps"))pick(null).push(r);
-
+  // Everyone else, strongest first, to the smaller force (ties go to the one with less CP)
+  for(const r of pool.filter(x=>role(x)==="dps"))
+    [...forces].sort((a,b)=>a.length-b.length||sumCp(a)-sumCp(b))[0].push(r);
   const out={};
   for(const f of FORCES)out[f.id]=buildParties(F[f.id],ps,0);
   return out;
@@ -340,7 +311,7 @@ function render(){
   const O=arrange(all);
   const cov=$("coverage");cov.replaceChildren();
   if(all.length){
-    const ps=O.powerful.concat(O.beso,O.pope);
+    const ps=FORCES.flatMap(f=>O[f.id]);
     const nC=all.filter(r=>role(r)==="cleric").length,nH=all.filter(r=>role(r)==="chanter").length;
     const missC=ps.filter(p=>!p.cleric).length,missH=ps.filter(p=>!p.chanter).length;
     const add=(html,cls)=>{const s=document.createElement("span");if(cls)s.className=cls;s.innerHTML=html;cov.append(s);};

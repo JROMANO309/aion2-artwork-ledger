@@ -1,9 +1,7 @@
 # Aura Legion Battle Roster
 
-Sign-up page for Aion 2 server battles. Players enter their character name, class and CP, and the page organizes everyone into four forces:
+Sign-up page for Aion 2 server battles. Players enter their character name, class and CP, and the page organizes everyone into two forces:
 
-- **Beso's Force**
-- **Powerful's Force**
 - **Pope's Force**
 - **BBCwielder's Force** (Templars)
 
@@ -11,11 +9,11 @@ Each force is split into parties. Clerics and Chanters are preferred, not requir
 
 ## How players are placed
 
-- Powerful's Force holds the top 25% of the roster by CP, including a Cleric and a Chanter for each of its parties when there are enough.
-- Every Templar goes to BBCwielder's Force, which also gets a Cleric and a Chanter for each of its parties.
-- Everyone else is split evenly between Beso's and Pope's, with Clerics and Chanters spread across both and total CP kept even.
-- Inside a force, the remaining players fill the parties so party CP stays even.
-- Officers can lock any player to Beso's, Powerful's or Pope's with **Lock to** (a locked Templar stays in that force). Locked players stay put and the sorting works around them.
+- Every Templar goes to BBCwielder's Force.
+- Clerics and Chanters are shared out between both forces.
+- Everyone else fills in, strongest first, to whichever force is smaller, so both end up about the same size with CP kept balanced.
+- Inside a force, players fill the parties so party CP stays even.
+- Officers can lock a player to Pope's Force with **Lock to**.
 
 Forces lock from 30 minutes before each Artifact Siege (Thursday and Saturday, 9:00 PM server time) until about 30 minutes after it starts. Sign-ups stay open: anyone who joins during the lock fills an open party spot (marked **Late**) without moving anyone else. Edits, withdrawals, officer locks and settings wait until the lock ends.
 
