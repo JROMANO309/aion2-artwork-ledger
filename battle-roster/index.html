@@ -228,7 +228,7 @@ const forceName=id=>FORCES.find(f=>f.id===id)?.name||id;
 let db=null,fs=null,rosterKey=null,uid=null,isAdmin=false;
 let rows=new Map(),cfg={...DEFAULTS};
 let editingId=null,pendingRemove=null;
-let frozen=false,permLocked=false;   // frozen: siege lock window; permLocked: no database or no roster link
+let frozen=false,frozenSince=null,permLocked=false;   // frozen: siege lock window; permLocked: no database or no roster link
 
 function say(t,kind,el="msg"){const m=$(el);m.textContent=t||"";m.className="msg"+(kind?" "+kind:"");}
 const role=r=>{const c=String(r.cls||"").toLowerCase();return c.includes("cleric")?"cleric":c.includes("chanter")?"chanter":"dps";};
@@ -236,6 +236,26 @@ const byCp=(a,b)=>(+b.cp||0)-(+a.cp||0)||String(a.name).localeCompare(String(b.n
 const sumCp=l=>l.reduce((s,r)=>s+(+r.cp||0),0);
 
 /* ---------- organizer ---------- */
+const isTemplarCls=r=>/templar/i.test(String(r.cls||""));
+/* During the siege lock, forces are built only from entries made before the lock started.
+ * Anyone who signs up during the lock is slotted into an open spot without moving anyone else. */
+function arrange(all){
+  if(!frozen||!frozenSince)return organize(all);
+  const at=r=>Date.parse(r.updatedAt||0)||0;
+  const base=all.filter(r=>at(r)<frozenSince), late=all.filter(r=>at(r)>=frozenSince).sort((a,b)=>at(a)-at(b));
+  const O=organize(base), ps=Math.max(2,+cfg.partySize||DEFAULTS.partySize);
+  const size=id=>O[id].reduce((s,p)=>s+p.members.length,0);
+  for(const r0 of late){
+    const r={...r0,late:true},rl=role(r);
+    const fid=LOCKABLE.includes(r.pin)?r.pin:isTemplarCls(r)?"templar":(size("pope")<size("beso")?"pope":"beso");
+    const parties=O[fid];
+    const open=parties.filter(p=>p.members.length<ps);
+    let p=(rl!=="dps"&&open.find(x=>!x[rl]))||open[0];
+    if(!p){p={members:[],cleric:false,chanter:false};parties.push(p);}
+    p.members.push(r);if(rl!=="dps")p[rl]=true;
+  }
+  return O;
+}
 function organize(all){
   const ps=Math.max(2,+cfg.partySize||DEFAULTS.partySize);
   const powerfulSize=Math.round(all.length*POWERFUL_SHARE);
@@ -317,7 +337,7 @@ function render(){
   $("tAvg").textContent=all.length?fmt(Math.round(total/all.length)):"–";
   $("export").hidden=!all.length;
 
-  const O=organize(all);
+  const O=arrange(all);
   const cov=$("coverage");cov.replaceChildren();
   if(all.length){
     const ps=O.powerful.concat(O.beso,O.pope);
@@ -372,6 +392,7 @@ function rowEl(r,f){
   const rl=role(r);
   if(rl!=="dps"){const t=document.createElement("span");t.className="tag";t.textContent=rl;t.style.setProperty("--tc",`var(--r-${rl})`);pn.append(t);}
   if(r.pin){const t=document.createElement("span");t.className="tag";t.textContent="Locked";t.title="Placed by an officer";pn.append(t);}
+  if(r.late){const t=document.createElement("span");t.className="tag";t.textContent="Late";t.title="Joined during the siege lock and filled an open spot";pn.append(t);}
   const pc=document.createElement("div");pc.className="pc";pc.textContent=(r.cls||"—")+(r.id===uid?" · you":"");
   const cp=document.createElement("div");cp.className="cp";cp.textContent=fmt(r.cp);
   li.append(pn,cp,pc);
@@ -396,9 +417,10 @@ function mini(text,fn,danger){const b=document.createElement("button");b.type="b
 function syncOwn(){
   if(editingId)return;
   const mine=uid&&rows.get(uid);
-  if($("forOther").checked){$("submit").textContent="Add player";$("withdraw").hidden=true;return;}
+  if($("forOther").checked){$("submit").textContent="Add player";$("withdraw").hidden=true;if(!permLocked)$("submit").disabled=false;return;}
   $("submit").textContent=mine?"Update my signup":"Sign up";
-  $("withdraw").hidden=!mine;
+  $("withdraw").hidden=!mine||frozen;
+  if(!permLocked)$("submit").disabled=!!(frozen&&mine);
   $("formTitle").textContent=mine?"Your signup":"Sign up";
 }
 function fillFrom(d){$("name").value=d?.name||"";$("cls").value=d?.cls||"";$("cp").value=d?.cp??"";}
@@ -428,7 +450,7 @@ function randomId(n){const a="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz2
 const col=name=>fs.collection(db,"rosters",rosterKey,name);
 const docData=(r,over)=>({name:r.name,cls:r.cls,cp:Number(r.cp)||0,pin:r.pin||null,updatedAt:new Date().toISOString(),...over});
 async function save(id,data){
-  if(frozen){say(FROZEN_MSG,"err");return false;}
+  if(frozen&&rows.has(id)){say(FROZEN_MSG,"err");return false;}   // new sign-ups only during the lock
   try{await fs.setDoc(fs.doc(col("signups"),id),data);return true;}
   catch(e){say(e?.code==="permission-denied"?"The roster rejected that entry. Check the name, class and CP and try again.":"That didn't save. Check your connection and try again.","err");return false;}
 }
@@ -437,10 +459,10 @@ async function removeDoc(id){
   try{await fs.deleteDoc(fs.doc(col("signups"),id));if(editingId===id)endEdit();say("Removed.","ok");return true;}
   catch{say("Couldn't remove that entry. Try again.","err");return false;}
 }
-const FROZEN_MSG="The roster is locked from 30 minutes before the siege until it ends.";
+const FROZEN_MSG="Forces are locked from 30 minutes before the siege until it ends. New sign-ups still go through, but existing entries can\u2019t change until then.";
 $("form").addEventListener("submit",async e=>{
   e.preventDefault();
-  if(frozen)return say(FROZEN_MSG,"err");
+  if(frozen&&(editingId||(!($("forOther").checked&&isAdmin)&&uid&&rows.has(uid))))return say(FROZEN_MSG,"err");
   if(!db)return say(rosterKey?"The roster is still connecting. Wait a moment and try again, or reload the page.":"Open the roster link your organizer shared to sign up.","err");
   const name=$("name").value.trim(),cls=$("cls").value;
   const cpRaw=$("cp").value.replace(/[,\s.]/g,"");
@@ -481,7 +503,7 @@ $("sSave").onclick=async()=>{
 /* ---------- export ---------- */
 $("export").onclick=()=>{
   const esc=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
-  const O=organize([...rows.entries()].map(([id,d])=>({id,...d})));
+  const O=arrange([...rows.entries()].map(([id,d])=>({id,...d})));
   const lines=[["Force","Party","Name","Class","CP","Locked"].join(",")];
   for(const f of FORCES)O[f.id].forEach((p,i)=>p.members.forEach(r=>lines.push([f.name,i+1,r.name,r.cls,r.cp,r.pin?"Yes":""].map(esc).join(","))));
   const url=URL.createObjectURL(new Blob([lines.join("\n")],{type:"text/csv"}));
@@ -528,7 +550,7 @@ function setFrozen(on,cur){
   frozen=on;
   $("siegeBox").classList.toggle("frozen",on);
   $("siegeTitle").textContent=on&&Date.now()>=cur?"Artifact Siege underway":"Next Artifact Siege";
-  if(!permLocked)for(const el of $("form").querySelectorAll("input,select,button"))el.disabled=on;
+  frozenSince=on?cur-LOCK_BEFORE:null;
   for(const el of $("settingsPanel").querySelectorAll("input,button"))el.disabled=on;
   if(on){editingId=null;$("cancel").hidden=true;}
   render();
@@ -540,7 +562,7 @@ function tickSiege(){
   if(lockOn!==frozen)setFrozen(lockOn,cur);
   if(lockOn)$("siegeTitle").textContent=now>=cur?"Artifact Siege underway":"Next Artifact Siege";
   const unlock=new Date(cur+LOCK_AFTER).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
-  $("siegeLock").textContent=lockOn?`Roster locked · forces are final until ${unlock}`:"Roster locks 30 minutes before each siege";
+  $("siegeLock").textContent=lockOn?`Forces locked until ${unlock} · new sign-ups fill open spots`:"Forces lock 30 minutes before each siege";
   const t=nextSiege(now),d=Math.max(0,Math.floor((t-now)/1000));
   $("sgD").textContent=Math.floor(d/86400);$("sgH").textContent=pad(Math.floor(d%86400/3600));
   $("sgM").textContent=pad(Math.floor(d%3600/60));$("sgS").textContent=pad(d%60);

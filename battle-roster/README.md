@@ -17,7 +17,7 @@ Each force is split into parties. Clerics and Chanters are preferred, not requir
 - Inside a force, the remaining players fill the parties so party CP stays even.
 - Officers can lock any player to Beso's, Powerful's or Pope's with **Lock to** (a locked Templar stays in that force). Locked players stay put and the sorting works around them.
 
-The roster locks from 30 minutes before each Artifact Siege (Thursday and Saturday, 9:00 PM server time) until about 30 minutes after it starts, so forces don't change during the fight. Sign-ups, edits and settings reopen after that.
+Forces lock from 30 minutes before each Artifact Siege (Thursday and Saturday, 9:00 PM server time) until about 30 minutes after it starts. Sign-ups stay open: anyone who joins during the lock fills an open party spot (marked **Late**) without moving anyone else. Edits, withdrawals, officer locks and settings wait until the lock ends.
 
 Officers can change the party size (default 4) in **Organizer settings**.
 
